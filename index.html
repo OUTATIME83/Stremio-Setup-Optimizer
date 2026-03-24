@@ -1,0 +1,3601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Stremio Setup Optimizer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ================================================================
+       CSS CUSTOM PROPERTIES — DARK THEME
+       ================================================================ */
+    :root {
+      --bg-base:          #09090c;
+      --bg-surface:       #111318;
+      --bg-card:          #17191f;
+      --bg-card-hover:    #1d2029;
+      --bg-input:         #111318;
+      --border:           #23262f;
+      --border-focus:     #7c3aed;
+      --accent:           #7c3aed;
+      --accent-light:     #a78bfa;
+      --accent-dim:       rgba(124, 58, 237, 0.18);
+      --accent-glow:      rgba(124, 58, 237, 0.28);
+      --success:          #22c55e;
+      --success-dim:      rgba(34, 197, 94, 0.12);
+      --success-border:   rgba(34, 197, 94, 0.25);
+      --error:            #ef4444;
+      --error-dim:        rgba(239, 68, 68, 0.12);
+      --error-border:     rgba(239, 68, 68, 0.25);
+      --warning:          #f59e0b;
+      --warning-dim:      rgba(245, 158, 11, 0.12);
+      --warning-border:   rgba(245, 158, 11, 0.25);
+      --text-primary:     #f1f5f9;
+      --text-secondary:   #94a3b8;
+      --text-muted:       #64748b;
+      --font:             'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --radius-xl:        20px;
+      --radius-lg:        14px;
+      --radius:           10px;
+      --radius-sm:        7px;
+      --shadow-sm:        0 2px 8px rgba(0,0,0,0.35);
+      --shadow:           0 4px 24px rgba(0,0,0,0.55);
+      --shadow-lg:        0 8px 48px rgba(0,0,0,0.65);
+      --transition:       0.18s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* ================================================================
+       RESET & BASE
+       ================================================================ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--font);
+      background: var(--bg-base);
+      color: var(--text-primary);
+      min-height: 100vh;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    button { font-family: var(--font); cursor: pointer; }
+    input  { font-family: var(--font); }
+    a      { color: inherit; }
+
+    /* ================================================================
+       APP SHELL
+       ================================================================ */
+    .app {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 740px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    /* ================================================================
+       HEADER
+       ================================================================ */
+    .site-header {
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 20px 30px;
+      text-align: center;
+    }
+
+    .header-brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    .header-icon {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, #7c3aed 0%, #4338ca 100%);
+      border-radius: var(--radius);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      box-shadow: 0 4px 16px rgba(124, 58, 237, 0.45);
+      flex-shrink: 0;
+    }
+
+    .header-brand h1 {
+      font-size: clamp(20px, 4vw, 27px);
+      font-weight: 800;
+      letter-spacing: -0.6px;
+      line-height: 1.2;
+    }
+
+    .header-tagline {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--accent-light);
+      margin-bottom: 10px;
+    }
+
+    .header-desc {
+      font-size: 14px;
+      color: var(--text-secondary);
+      max-width: 500px;
+      margin: 0 auto;
+      line-height: 1.65;
+    }
+
+    /* ================================================================
+       MAIN CONTENT AREA
+       ================================================================ */
+    .main {
+      flex: 1;
+      padding: 44px 0 72px;
+    }
+
+    /* ================================================================
+       PROGRESS INDICATOR
+       ================================================================ */
+    .progress-wrapper {
+      margin-bottom: 32px;
+    }
+
+    .progress-track {
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      position: relative;
+    }
+
+    .prog-step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex: 1;
+      max-width: 160px;
+      position: relative;
+    }
+
+    /* Horizontal connector line between dots */
+    .prog-step::after {
+      content: '';
+      position: absolute;
+      top: 18px;
+      left: calc(50% + 18px);
+      right: calc(-50% + 18px);
+      height: 2px;
+      background: var(--border);
+      transition: background var(--transition);
+    }
+    .prog-step:last-child::after { display: none; }
+    .prog-step.done::after       { background: var(--accent); }
+
+    .prog-dot {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--bg-card);
+      border: 2px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-muted);
+      position: relative;
+      z-index: 1;
+      transition: all var(--transition);
+    }
+
+    .prog-step.active .prog-dot {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+      box-shadow: 0 0 0 4px var(--accent-glow);
+    }
+
+    .prog-step.done .prog-dot {
+      background: var(--success);
+      border-color: var(--success);
+      color: #fff;
+    }
+
+    .prog-label {
+      margin-top: 9px;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-muted);
+      text-align: center;
+      white-space: nowrap;
+      transition: color var(--transition);
+    }
+
+    .prog-step.active .prog-label,
+    .prog-step.done  .prog-label { color: var(--text-secondary); }
+
+    /* ================================================================
+       WIZARD CARD SHELL
+       ================================================================ */
+    .wizard {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-lg);
+      overflow: hidden;
+    }
+
+    .wizard-head {
+      padding: 30px 32px 22px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .step-eyebrow {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--accent-light);
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    .wizard-head h2 {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.35px;
+      margin-bottom: 6px;
+    }
+
+    .wizard-head p {
+      font-size: 14px;
+      color: var(--text-secondary);
+      max-width: 560px;
+      line-height: 1.65;
+    }
+
+    .wizard-body {
+      padding: 28px 32px;
+    }
+
+    .wizard-foot {
+      padding: 18px 32px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* ================================================================
+       STEP PANELS (visibility)
+       ================================================================ */
+    .step-panel          { display: none; }
+    .step-panel.active   { display: block; }
+
+     /* ================================================================
+       REUSABLE CARD GRID
+       ================================================================ */
+    .type-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .type-card {
+      background: var(--bg-surface);
+      border: 2px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 20px 22px;
+      cursor: pointer;
+      transition: all var(--transition);
+      position: relative;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    .type-card:hover {
+      border-color: #4c3a8a;
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .type-card.selected {
+      border-color: var(--accent);
+      background: var(--accent-dim);
+    }
+
+    /* Accent top-edge on selected card */
+    .type-card.selected::before {
+      content: '';
+      position: absolute;
+      inset: 0 0 auto 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent), #4338ca);
+    }
+
+    .type-card-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .type-card-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .type-name {
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .badge {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 9px;
+      border-radius: 999px;
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+    }
+
+    .badge-green   { background: var(--success-dim); color: var(--success); }
+    .badge-yellow  { background: var(--warning-dim); color: var(--warning); }
+    .badge-purple  { background: var(--accent-dim);  color: var(--accent-light); }
+    .badge-muted   { background: var(--bg-card);     color: var(--text-muted); border: 1px solid var(--border); }
+
+    .radio-circle {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+      transition: all var(--transition);
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .type-card.selected .radio-circle {
+      border-color: var(--accent);
+      background: var(--accent);
+      box-shadow: inset 0 0 0 4px var(--bg-card);
+    }
+
+    .type-desc {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-bottom: 14px;
+      line-height: 1.6;
+    }
+
+    /* ================================================================
+       GLOBAL PREFERENCES (LANGUAGES + IMPORTANT OPTIONS)
+       ================================================================ */
+    .prefs-card {
+      margin-top: 18px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 18px;
+    }
+
+    .prefs-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .prefs-title {
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: -0.2px;
+    }
+
+    .prefs-note {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.55;
+      margin-bottom: 14px;
+    }
+
+    .prefs-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    .prefs-group {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 12px;
+    }
+
+    .prefs-group h4 {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1.1px;
+      color: var(--text-secondary);
+      margin-bottom: 10px;
+    }
+
+    .lang-options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .lang-chip {
+      position: relative;
+    }
+
+    .lang-chip input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .lang-chip label {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 56px;
+      padding: 7px 11px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--bg-surface);
+      color: var(--text-secondary);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all var(--transition);
+      user-select: none;
+    }
+
+    .lang-chip input:checked + label {
+      border-color: var(--accent);
+      background: var(--accent-dim);
+      color: var(--accent-light);
+    }
+
+    .pref-toggles {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 6px;
+    }
+
+    .pref-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 13px;
+      color: var(--text-secondary);
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
+    }
+
+    .pref-summary {
+      margin-top: 12px;
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    /* ================================================================
+       STEP 2 — REAL-DEBRID
+       ================================================================ */
+    .info-box {
+      border-radius: var(--radius);
+      padding: 13px 16px;
+      margin-bottom: 24px;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .info-box-purple {
+      background: var(--accent-dim);
+      border: 1px solid rgba(124, 58, 237, 0.25);
+      color: var(--text-secondary);
+    }
+
+    .info-box-purple a {
+      color: var(--accent-light);
+      text-decoration: none;
+    }
+    .info-box-purple a:hover { text-decoration: underline; }
+
+    .form-group { margin-bottom: 22px; }
+
+    .form-label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+
+    .form-label .req { color: var(--error); margin-left: 2px; }
+
+    .input-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .form-input {
+      flex: 1;
+      min-width: 0;
+      background: var(--bg-input);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 11px 14px;
+      font-size: 14px;
+      color: var(--text-primary);
+      outline: none;
+      transition: border-color var(--transition), box-shadow var(--transition);
+    }
+
+    .form-input::placeholder { color: var(--text-muted); }
+
+    .form-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+
+    .form-input.is-error   { border-color: var(--error); }
+    .form-input.is-success { border-color: var(--success); }
+
+    /* Show/hide password toggle */
+    .input-wrapper {
+      position: relative;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .input-wrapper .form-input {
+      width: 100%;
+      padding-right: 42px;
+    }
+
+    /* Step 3 spacing and readability */
+    #step3 .wizard-body {
+      display: grid;
+      gap: 14px;
+    }
+
+    .step3-token-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px;
+    }
+
+    .step3-token-card .form-group {
+      margin-bottom: 0;
+    }
+
+    .btn-show-key {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 16px;
+      cursor: pointer;
+      padding: 2px;
+      line-height: 1;
+      transition: color var(--transition);
+    }
+
+    .btn-show-key:hover { color: var(--text-secondary); }
+
+    /* ================================================================
+       STEP 3 — ADDONS
+       ================================================================ */
+    .suggestion-banner {
+      display: flex;
+      gap: 10px;
+      padding: 12px 14px;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      color: var(--success);
+      background: var(--success-dim);
+      border: 1px solid var(--success-border);
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+
+    .addon-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .addon-card {
+      background: var(--bg-surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 18px 20px;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      transition: border-color var(--transition), background var(--transition);
+    }
+
+    .addon-card.is-on  {
+      border-color: var(--accent);
+      background: var(--accent-dim);
+    }
+
+    .addon-card.is-locked {
+      opacity: 0.42;
+      pointer-events: none;
+    }
+
+    .addon-info { flex: 1; min-width: 0; }
+
+    .addon-name-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+
+    .addon-name {
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .addon-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      line-height: 1.5;
+    }
+
+    .addon-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .addon-meta span {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .addon-meta span b {
+      color: var(--text-secondary);
+      font-weight: 600;
+    }
+
+    /* Toggle switch */
+    .toggle {
+      position: relative;
+      width: 46px;
+      height: 26px;
+      flex-shrink: 0;
+    }
+
+    .toggle input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+      position: absolute;
+    }
+
+    .toggle-track {
+      position: absolute;
+      inset: 0;
+      background: var(--bg-card);
+      border: 1.5px solid var(--border);
+      border-radius: 999px;
+      cursor: pointer;
+      transition: background var(--transition), border-color var(--transition);
+    }
+
+    .toggle-track::before {
+      content: '';
+      position: absolute;
+      width: 17px;
+      height: 17px;
+      background: var(--text-muted);
+      border-radius: 50%;
+      top: 50%;
+      left: 3px;
+      transform: translateY(-50%);
+      transition: transform var(--transition), background var(--transition);
+    }
+
+    .toggle input:checked + .toggle-track {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .toggle input:checked + .toggle-track::before {
+      background: #fff;
+      transform: translateX(20px) translateY(-50%);
+    }
+
+    .toggle input:disabled + .toggle-track {
+      cursor: not-allowed;
+    }
+
+    /* Limit warning */
+    .limit-warning {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      background: var(--warning-dim);
+      border: 1px solid var(--warning-border);
+      border-radius: var(--radius-sm);
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--warning);
+      margin-top: 14px;
+    }
+
+    .limit-warning.show { display: flex; }
+
+    /* ================================================================
+       STEP 4 — GENERATE & OUTPUT
+       ================================================================ */
+    .summary-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 26px;
+    }
+
+    .summary-tile {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 14px 16px;
+    }
+
+    .summary-tile-label {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: var(--text-muted);
+      margin-bottom: 5px;
+    }
+
+    .summary-tile-value {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .summary-tile-value.c-accent   { color: var(--accent-light); }
+
+    /* Generate button area */
+    .gen-cta {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    .gen-cta .btn-lg {
+      min-width: 260px;
+    }
+
+    /* Install link output */
+    .links-output {
+      display: none;
+      padding-top: 4px;
+    }
+
+    .links-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .links-header h3 {
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .links-header-status {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--success);
+    }
+
+    .link-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .link-card-head {
+      padding: 11px 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .link-card-name {
+      font-size: 13px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .link-url {
+      padding: 11px 16px;
+      font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
+      font-size: 11px;
+      color: var(--text-secondary);
+      word-break: break-all;
+      background: var(--bg-base);
+      border-bottom: 1px solid var(--border);
+      line-height: 1.7;
+    }
+
+    .link-actions {
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .copy-ok {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--success);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .copy-ok.show { opacity: 1; }
+
+    /* ================================================================
+       INSTALL CHECKLIST SECTIONS
+       ================================================================ */
+    .install-section {
+      margin-top: 22px;
+    }
+
+    .install-section-heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--text-muted);
+    }
+
+    .install-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--border);
+      flex-shrink: 0;
+      transition: background var(--transition);
+    }
+
+    .install-dot.installed {
+      background: var(--success);
+    }
+
+    .link-card.is-installed {
+      border-color: var(--success-border);
+      background: var(--success-dim);
+    }
+
+    .install-settings-note {
+      padding: 9px 14px;
+      font-size: 11px;
+      color: var(--text-muted);
+      line-height: 1.55;
+      border-top: 1px solid var(--border);
+    }
+
+    /* Security note */
+    .security-note {
+      margin-top: 14px;
+      padding: 12px 14px;
+      background: var(--warning-dim);
+      border: 1px solid var(--warning-border);
+      border-radius: var(--radius-sm);
+      font-size: 12px;
+      color: var(--warning);
+      line-height: 1.55;
+    }
+
+    .how-to-note {
+      margin-top: 10px;
+      padding: 12px 14px;
+      background: var(--accent-dim);
+      border: 1px solid rgba(124, 58, 237, 0.2);
+      border-radius: var(--radius-sm);
+      font-size: 12px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    /* ================================================================
+       BUTTONS
+       ================================================================ */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      font-family: var(--font);
+      font-size: 14px;
+      font-weight: 600;
+      padding: 10px 20px;
+      border-radius: var(--radius-sm);
+      border: none;
+      cursor: pointer;
+      transition: all var(--transition);
+      white-space: nowrap;
+      text-decoration: none;
+      line-height: 1;
+    }
+
+    .btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      transform: none !important;
+      box-shadow: none !important;
+    }
+
+    /* Primary — purple fill */
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+    }
+    .btn-primary:not(:disabled):hover {
+      background: #6d28d9;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 14px rgba(124, 58, 237, 0.45);
+    }
+
+    /* Secondary — outlined neutral */
+    .btn-secondary {
+      background: var(--bg-surface);
+      color: var(--text-secondary);
+      border: 1.5px solid var(--border);
+    }
+    .btn-secondary:not(:disabled):hover {
+      color: var(--text-primary);
+      border-color: var(--text-muted);
+    }
+
+    /* Success — green fill */
+    .btn-success {
+      background: var(--success);
+      color: #fff;
+    }
+    .btn-success:not(:disabled):hover {
+      background: #16a34a;
+      transform: translateY(-1px);
+    }
+
+    /* Outline accent */
+    .btn-outline {
+      background: transparent;
+      color: var(--accent-light);
+      border: 1.5px solid rgba(124, 58, 237, 0.35);
+    }
+    .btn-outline:not(:disabled):hover {
+      background: var(--accent-glow);
+      border-color: var(--accent);
+    }
+
+    /* Danger — red outline */
+    .btn-danger {
+      background: transparent;
+      color: var(--error);
+      border: 1.5px solid rgba(239, 68, 68, 0.3);
+    }
+    .btn-danger:not(:disabled):hover {
+      background: var(--error-dim);
+      border-color: var(--error);
+    }
+
+    /* Large CTA */
+    .btn-lg {
+      font-size: 16px;
+      padding: 14px 36px;
+      border-radius: var(--radius);
+    }
+
+    /* Small */
+    .btn-sm {
+      font-size: 12px;
+      padding: 7px 14px;
+    }
+
+    /* Utilities */
+    .spacer { flex: 1; }
+
+    .foot-hint {
+      font-size: 13px;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    /* ================================================================
+       FOOTER
+       ================================================================ */
+    .site-footer {
+      background: var(--bg-surface);
+      border-top: 1px solid var(--border);
+      padding: 18px 20px;
+      text-align: center;
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    /* ================================================================
+       RESPONSIVE — TABLET / MOBILE
+       ================================================================ */
+    @media (max-width: 580px) {
+      .wizard-head,
+      .wizard-body,
+      .wizard-foot { padding-left: 20px; padding-right: 20px; }
+
+      .summary-grid  { grid-template-columns: 1fr; }
+      .prefs-grid    { grid-template-columns: 1fr; }
+
+      .prog-label    { display: none; }
+
+      .btn-lg        { font-size: 14px; padding: 12px 22px; }
+
+      .gen-cta .btn-lg {
+        width: 100%;
+        max-width: 340px;
+      }
+
+      .step3-token-card {
+        padding: 12px;
+      }
+    }
+
+    @media (max-width: 440px) {
+      .input-row     { flex-direction: column; }
+      .wizard-foot   { flex-wrap: wrap; }
+      .header-brand  { flex-direction: column; gap: 8px; }
+    }
+  </style>
+</head>
+
+<body>
+<div class="app">
+
+  <!-- ============================================================
+       HEADER
+  ============================================================ -->
+  <header class="site-header">
+    <div class="header-brand">
+      <div class="header-icon">⚡</div>
+      <h1>Stremio Setup Optimizer</h1>
+    </div>
+    <p class="header-tagline">Clean. Fast. Minimal.</p>
+    <p class="header-desc">
+    Optimized for faster, high-quality streaming — with a free option available.
+    </p>
+  </header>
+
+  <!-- ============================================================
+       MAIN
+  ============================================================ -->
+  <main class="main">
+    <div class="container">
+
+      <!-- PROGRESS INDICATOR -->
+      <div class="progress-wrapper">
+        <div class="progress-track" id="progressTrack">
+          <!-- Rendered by JS -->
+        </div>
+      </div>
+
+      <!-- WIZARD CARD -->
+      <div class="wizard" id="wizardCard">
+
+        <!-- ======================================================
+             STEP 1 — GLOBAL PREFERENCES
+        ====================================================== -->
+        <div class="step-panel" id="step1">
+          <div class="wizard-head">
+            <span class="step-eyebrow">Step 1 of 7</span>
+            <h2>Global Content Preferences</h2>
+            <p>Set your audio and subtitle preferences once. Guided defaults are applied later, and every step can still be adjusted manually.</p>
+          </div>
+
+          <div class="wizard-body">
+            <div class="info-box info-box-purple" style="margin-bottom:14px;">
+              ✓ This wizard uses guided defaults: top scraper pairing, recommended catalog layers, and essential utilities.<br />
+              <span style="color:var(--text-muted); font-size:12px; margin-top:4px; display:block;">⚠ No debrid subscription? Select <strong style="color:var(--text-secondary)">Free (No Debrid)</strong> in Step 2</span>
+            </div>
+
+            <div class="prefs-card">
+              <div class="prefs-head">
+                <h3 class="prefs-title">Global Content Preferences</h3>
+                <span class="badge badge-purple">Applies across selected scraper configs</span>
+              </div>
+              <p class="prefs-note">
+                Choose your audio and subtitle languages once. This tool carries those preferences into every
+                selected scraper configuration it creates.
+              </p>
+
+              <div class="prefs-grid">
+                <div class="prefs-group">
+                  <h4>Audio Languages</h4>
+                  <div class="lang-options" id="audioLangOptions">
+                    <div class="lang-chip"><input id="aud-en" type="checkbox" checked onchange="onLanguageToggle('audio', 'en', this.checked)"><label for="aud-en">English</label></div>
+                    <div class="lang-chip"><input id="aud-es" type="checkbox" onchange="onLanguageToggle('audio', 'es', this.checked)"><label for="aud-es">Spanish</label></div>
+                    <div class="lang-chip"><input id="aud-pt" type="checkbox" onchange="onLanguageToggle('audio', 'pt', this.checked)"><label for="aud-pt">Portuguese</label></div>
+                    <div class="lang-chip"><input id="aud-fr" type="checkbox" onchange="onLanguageToggle('audio', 'fr', this.checked)"><label for="aud-fr">French</label></div>
+                    <div class="lang-chip"><input id="aud-de" type="checkbox" onchange="onLanguageToggle('audio', 'de', this.checked)"><label for="aud-de">German</label></div>
+                    <div class="lang-chip"><input id="aud-it" type="checkbox" onchange="onLanguageToggle('audio', 'it', this.checked)"><label for="aud-it">Italian</label></div>
+                    <div class="lang-chip"><input id="aud-ja" type="checkbox" onchange="onLanguageToggle('audio', 'ja', this.checked)"><label for="aud-ja">Japanese</label></div>
+                    <div class="lang-chip"><input id="aud-ko" type="checkbox" onchange="onLanguageToggle('audio', 'ko', this.checked)"><label for="aud-ko">Korean</label></div>
+                    <div class="lang-chip"><input id="aud-hi" type="checkbox" onchange="onLanguageToggle('audio', 'hi', this.checked)"><label for="aud-hi">Hindi</label></div>
+                  </div>
+                </div>
+
+                <div class="prefs-group">
+                  <h4>Subtitle Languages</h4>
+                  <div class="lang-options" id="subLangOptions">
+                    <div class="lang-chip"><input id="sub-en" type="checkbox" checked onchange="onLanguageToggle('subtitle', 'en', this.checked)"><label for="sub-en">English</label></div>
+                    <div class="lang-chip"><input id="sub-es" type="checkbox" onchange="onLanguageToggle('subtitle', 'es', this.checked)"><label for="sub-es">Spanish</label></div>
+                    <div class="lang-chip"><input id="sub-pt" type="checkbox" onchange="onLanguageToggle('subtitle', 'pt', this.checked)"><label for="sub-pt">Portuguese</label></div>
+                    <div class="lang-chip"><input id="sub-fr" type="checkbox" onchange="onLanguageToggle('subtitle', 'fr', this.checked)"><label for="sub-fr">French</label></div>
+                    <div class="lang-chip"><input id="sub-de" type="checkbox" onchange="onLanguageToggle('subtitle', 'de', this.checked)"><label for="sub-de">German</label></div>
+                    <div class="lang-chip"><input id="sub-it" type="checkbox" onchange="onLanguageToggle('subtitle', 'it', this.checked)"><label for="sub-it">Italian</label></div>
+                    <div class="lang-chip"><input id="sub-ja" type="checkbox" onchange="onLanguageToggle('subtitle', 'ja', this.checked)"><label for="sub-ja">Japanese</label></div>
+                    <div class="lang-chip"><input id="sub-ko" type="checkbox" onchange="onLanguageToggle('subtitle', 'ko', this.checked)"><label for="sub-ko">Korean</label></div>
+                    <div class="lang-chip"><input id="sub-hi" type="checkbox" onchange="onLanguageToggle('subtitle', 'hi', this.checked)"><label for="sub-hi">Hindi</label></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="pref-toggles">
+                <div class="pref-row">
+                  <span>Strict language match (exclude non-selected where supported)</span>
+                  <label class="toggle">
+                    <input id="pref-strict-lang" type="checkbox" checked onchange="onPreferenceToggle('strictLanguageOnly', this.checked)">
+                    <span class="toggle-track"></span>
+                  </label>
+                </div>
+                <div class="pref-row">
+                  <span>Allow English fallback when no match is found</span>
+                  <label class="toggle">
+                    <input id="pref-fallback-en" type="checkbox" onchange="onPreferenceToggle('allowEnglishFallback', this.checked)">
+                    <span class="toggle-track"></span>
+                  </label>
+                </div>
+              </div>
+              <p class="pref-summary" style="margin-top:8px; color:var(--text-muted);">
+                Strict mode keeps only selected languages where supported and automatically disables English fallback.
+              </p>
+
+              <p class="pref-summary" id="prefsSummaryText"></p>
+            </div>
+          </div>
+
+          <div class="wizard-foot">
+            <span class="foot-hint" id="step1Hint">Preferences are optional. Continue when ready.</span>
+            <div class="spacer"></div>
+            <button class="btn btn-primary" id="step1Next" onclick="goToStep(2)">
+              Next: Debrid Service →
+            </button>
+          </div>
+        </div>
+        <!-- /step1 -->
+
+        <!-- ======================================================
+             STEP 2 — CHOOSE DEBRID SERVICE
+        ====================================================== -->
+        <div class="step-panel" id="step2">
+          <div class="wizard-head">
+            <span class="step-eyebrow">Step 2 of 7</span>
+            <h2>Choose Debrid Service</h2>
+            <p>Select the service that matches your setup. Compatible defaults are applied automatically.</p>
+          </div>
+
+          <div class="wizard-body">
+            <div class="info-box info-box-purple" style="margin-bottom:20px;">
+              🔑 <strong>Choose what fits your setup:</strong> use Real-Debrid, AllDebrid, or Premiumize if you have a subscription, or select <strong>Free (No Debrid)</strong> if you want a no-subscription setup.
+            </div>
+            <div class="type-grid">
+
+              <!-- Real-Debrid -->
+              <div class="type-card" id="debridcard-realdebrid" data-debrid="realdebrid" onclick="selectDebridService('realdebrid')">
+                <div class="type-card-top">
+                  <div class="type-card-title">
+                    <span class="type-name">Real-Debrid</span>
+                    <span class="badge badge-green">Most Popular</span>
+                  </div>
+                  <div class="radio-circle" id="debridradio-realdebrid"></div>
+                </div>
+                <p class="type-desc">
+                  Largest cached library. Best overall compatibility and the most-used debrid service in the Stremio community.
+                </p>
+              </div>
+
+              <!-- AllDebrid -->
+              <div class="type-card" id="debridcard-alldebrid" data-debrid="alldebrid" onclick="selectDebridService('alldebrid')">
+                <div class="type-card-top">
+                  <div class="type-card-title">
+                    <span class="type-name">AllDebrid</span>
+                    <span class="badge badge-purple">Popular</span>
+                  </div>
+                  <div class="radio-circle" id="debridradio-alldebrid"></div>
+                </div>
+                <p class="type-desc">
+                  Fast speeds and strong cache. Supported by the scraper set this tool configures.
+                </p>
+              </div>
+
+              <!-- Premiumize -->
+              <div class="type-card" id="debridcard-premiumize" data-debrid="premiumize" onclick="selectDebridService('premiumize')">
+                <div class="type-card-top">
+                  <div class="type-card-title">
+                    <span class="type-name">Premiumize</span>
+                  </div>
+                  <div class="radio-circle" id="debridradio-premiumize"></div>
+                </div>
+                <p class="type-desc">
+                  Good cache depth for mainstream content. Combined torrent and NZB debrid service.
+                </p>
+              </div>
+
+              <!-- Free (No Debrid) -->
+              <div class="type-card" id="debridcard-none" data-debrid="none" onclick="selectDebridService('none')">
+                <div class="type-card-top">
+                  <div class="type-card-title">
+                    <span class="type-name">Free (No Debrid)</span>
+                    <span class="badge badge-muted">Free</span>
+                  </div>
+                  <div class="radio-circle" id="debridradio-none"></div>
+                </div>
+                <p class="type-desc">
+                  ⚠ No subscription required. Streams come from live peers — slower to start, less reliable, and quality varies. Stremio Desktop (or Stremio Service) is required.
+                </p>
+              </div>
+
+            </div>
+          </div>
+
+          <div class="wizard-foot">
+            <button class="btn btn-secondary" onclick="goToStep(1)">← Back</button>
+            <div class="spacer"></div>
+            <span class="foot-hint" id="step2Hint">Select a debrid service to continue.</span>
+            <button class="btn btn-primary" id="step2Next" disabled onclick="goToStep(3)">
+              Next: Enter Token →
+            </button>
+          </div>
+        </div>
+        <!-- /step2 -->
+        <!-- ======================================================
+             STEP 3 — ENTER TOKEN
+        ====================================================== -->
+        <div class="step-panel" id="step3">
+          <div class="wizard-head">
+            <span class="step-eyebrow">Step 3 of 7</span>
+            <h2>Connect <span id="debridServiceTitle">Debrid Service</span></h2>
+            <p>Enter your API token for the debrid service you selected. It is only used locally to generate add-on URLs.</p>
+          </div>
+
+          <div class="wizard-body">
+            <div class="info-box info-box-purple">
+              🔑 Find your API token in your <a id="debridTokenLink" href="#" target="_blank" rel="noopener noreferrer">account settings page</a>.
+              Paste the private API key shown there below.
+            </div>
+
+            <div class="how-to-note" style="margin-top:0;">
+              New to <span id="debridSignupServiceName">this service</span>?
+              <a id="debridSignupLink" href="#" target="_blank" rel="noopener noreferrer">Create an account</a>, then come back here and paste your API token.
+            </div>
+
+            <div class="step3-token-card">
+              <div class="form-group">
+                <label class="form-label" for="apiKeyInput">
+                  <span id="debridTokenLabel">API Token</span> <span class="req">*</span>
+                </label>
+                <div class="input-row">
+                  <div class="input-wrapper">
+                    <input
+                      type="password"
+                      id="apiKeyInput"
+                      class="form-input"
+                      placeholder="Paste your private API token here…"
+                      autocomplete="off"
+                      spellcheck="false"
+                      oninput="onApiKeyInput()"
+                    />
+                    <button class="btn-show-key" id="toggleKeyVisibility" onclick="toggleKeyVisibility()" title="Show/hide key" aria-label="Toggle key visibility">
+                      👁
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="wizard-foot">
+            <button class="btn btn-secondary" onclick="goToStep(2)">← Back</button>
+            <div class="spacer"></div>
+            <button class="btn btn-primary" id="step3Next" disabled onclick="goToStep(4)">
+              Next: Scraper Pairing →
+            </button>
+          </div>
+        </div>
+        <!-- /step3 -->
+
+        <!-- ======================================================
+             STEP 4 — CHOOSE SCRAPERS
+        ====================================================== -->
+        <div class="step-panel" id="step4">
+          <div class="wizard-head">
+            <span class="step-eyebrow">Step 4 of 7</span>
+            <h2 id="step4Title">Choose Scraper Pairing</h2>
+            <p id="step4Desc">Use a guided pairing for the easiest setup, or switch to manual if you want full control over active scrapers.</p>
+          </div>
+
+          <div class="wizard-body">
+            <div class="suggestion-banner" id="suggestionBanner"></div>
+
+            <div class="how-to-note" id="freeModeScraperNote" style="display:none; margin-bottom:12px;">
+              Free (No Debrid) mode uses Torrentio on public instances only.
+            </div>
+
+            <div class="prefs-card" id="scraperModeWrap">
+              <div class="prefs-head">
+                <h3 class="prefs-title">Scraper Mode</h3>
+                <span class="badge badge-purple">Guided or Manual</span>
+              </div>
+              <div class="wizard-foot" style="padding:0; border-top:none; margin-top:10px;">
+                <button class="btn btn-outline" id="scraperModeRecommended" onclick="setScraperMode('recommended')">Recommended</button>
+                <button class="btn btn-outline" id="scraperModeManual" onclick="setScraperMode('manual')" style="margin-left:8px;">Manual</button>
+              </div>
+            </div>
+
+            <div class="prefs-card" id="scraperPresetWrap" style="margin-top:14px;">
+              <div class="prefs-head">
+                <h3 class="prefs-title">Guided Pairings</h3>
+                <span class="badge badge-green">Recommended presets</span>
+              </div>
+              <div class="type-grid" style="margin-top:14px;">
+                <div class="type-card" id="preset-speed" onclick="selectScraperPreset('speed')">
+                  <div class="type-card-top">
+                    <div class="type-card-title">
+                      <span class="type-name">Speed + Stability</span>
+                    </div>
+                    <div class="radio-circle" id="preset-radio-speed"></div>
+                  </div>
+                  <p class="type-desc">Primary: Torrentio · Backup: MediaFusion. Best balance for most users.</p>
+                </div>
+
+                <div class="type-card" id="preset-coverage" onclick="selectScraperPreset('coverage')">
+                  <div class="type-card-top">
+                    <div class="type-card-title">
+                      <span class="type-name">Coverage First</span>
+                    </div>
+                    <div class="radio-circle" id="preset-radio-coverage"></div>
+                  </div>
+                  <p class="type-desc">Primary: Torrentio · Backup: Sootio. Debrid-first backup with explicit resolution and language filters.</p>
+                </div>
+
+                <div class="type-card" id="preset-max" onclick="selectScraperPreset('max')">
+                  <div class="type-card-top">
+                    <div class="type-card-title">
+                      <span class="type-name">Max Fallbacks</span>
+                      <span class="badge badge-yellow">More overlap</span>
+                    </div>
+                    <div class="radio-circle" id="preset-radio-max"></div>
+                  </div>
+                  <p class="type-desc">Torrentio + MediaFusion + Sootio. Highest resilience when one source degrades.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="addon-list">
+
+              <!-- Torrentio -->
+              <div class="addon-card is-on" id="card-torrentio">
+                <div class="addon-info">
+                  <div class="addon-name-row">
+                    <span class="addon-name">Torrentio</span>
+                    <span class="badge badge-green">Recommended</span>
+                  </div>
+                  <p class="addon-desc">Fast, widely used, and reliable as a primary source.</p>
+                  <div class="addon-meta">
+                    <span>Host: <b>torrentio.strem.fun</b></span>
+                    <span>Role: <b>Primary</b></span>
+                    <span>Debrid: <b>Compatible</b></span>
+                    <span id="health-torrentio">Status: <b>Not checked</b></span>
+                  </div>
+                </div>
+                <label class="toggle">
+                  <input type="checkbox" id="tog-torrentio" checked onchange="onAddonToggle('torrentio', this.checked)" />
+                  <span class="toggle-track"></span>
+                </label>
+              </div>
+
+              <!-- Sootio (optional) -->
+              <div class="addon-card" id="card-torrentsdb">
+                <div class="addon-info">
+                  <div class="addon-name-row">
+                    <span class="addon-name">Sootio</span>
+                    <span class="badge badge-muted">Optional backup</span>
+                  </div>
+                  <p class="addon-desc">Debrid-first backup with explicit resolution filters and broad multi-scraper coverage.</p>
+                  <div class="addon-meta">
+                    <span>Host: <b>sootiofortheweebs.midnightignite.me</b></span>
+                    <span>Role: <b>Debrid backup</b></span>
+                    <span>Debrid: <b>Required</b></span>
+                    <span id="health-torrentsdb">Status: <b>Not checked</b></span>
+                  </div>
+                </div>
+                <label class="toggle">
+                  <input type="checkbox" id="tog-torrentsdb" onchange="onAddonToggle('torrentsdb', this.checked)" />
+                  <span class="toggle-track"></span>
+                </label>
+              </div>
+
+              <!-- MediaFusion (optional) -->
+              <div class="addon-card" id="card-mediafusion">
+                <div class="addon-info">
+                  <div class="addon-name-row">
+                    <span class="addon-name">MediaFusion</span>
+                    <span class="badge badge-muted">Optional backup</span>
+                  </div>
+                  <p class="addon-desc">Feature-rich backup with strong provider and stream coverage.</p>
+                  <div class="addon-meta">
+                    <span>Host: <b>mediafusion.elfhosted.com</b></span>
+                    <span>Role: <b>Coverage backup</b></span>
+                    <span>Debrid: <b>Required on public instance</b></span>
+                    <span id="health-mediafusion">Status: <b>Not checked</b></span>
+                  </div>
+                </div>
+                <label class="toggle">
+                  <input type="checkbox" id="tog-mediafusion" onchange="onAddonToggle('mediafusion', this.checked)" />
+                  <span class="toggle-track"></span>
+                </label>
+              </div>
+
+            </div>
+
+            <div class="limit-warning" id="limitWarning"></div>
+          </div>
+
+          <div class="wizard-foot">
+            <button class="btn btn-secondary" onclick="goToStep(3)">← Back</button>
+            <div class="spacer"></div>
+            <span class="foot-hint" id="addonCountLabel"></span>
+            <button class="btn btn-primary" id="step4Next" onclick="goToStep(5)" style="margin-left:10px;">
+              Next: Catalog Layers →
+            </button>
+          </div>
+        </div>
+        <!-- /step4 -->
+
+        <!-- ======================================================
+             STEP 5 — CATALOG LAYERS
+        ====================================================== -->
+        <div class="step-panel" id="step5">
+          <div class="wizard-head">
+            <span class="step-eyebrow">Step 5 of 7</span>
+            <h2>Catalog & Metadata Layers</h2>
+            <p>Keep the recommended layers for a clean home screen, or switch to manual for broader discovery.</p>
+          </div>
+
+          <div class="wizard-body">
+            <div class="prefs-card">
+              <div class="prefs-head">
+                <h3 class="prefs-title">Catalog Mode</h3>
+                <span class="badge badge-purple">Guided or Manual</span>
+              </div>
+              <div class="wizard-foot" style="padding:0; border-top:none; margin-top:10px;">
+                <button class="btn btn-outline" id="catalogModeRecommended" onclick="setCatalogMode('recommended')">Recommended</button>
+                <button class="btn btn-outline" id="catalogModeManual" onclick="setCatalogMode('manual')" style="margin-left:8px;">Manual</button>
+              </div>
+            </div>
+
+            <div class="addon-list" style="margin-top:14px;">
+              <div class="addon-card" id="card-cat-tmdb">
+                <div class="addon-info">
+                  <div class="addon-name-row">
+                    <span class="addon-name">TMDB Collections</span>
+                    <span class="badge badge-green">Recommended</span>
+                  </div>
+                  <p class="addon-desc">Reliable movie and series discovery rows.</p>
+                </div>
+                <label class="toggle">
+                  <input type="checkbox" id="tog-cat-tmdb" onchange="onCatalogToggle('tmdbCollections', this.checked)" />
+                  <span class="toggle-track"></span>
+                </label>
+              </div>
+
+              <div class="addon-card" id="card-cat-streaming">
+                <div class="addon-info">
+                  <div class="addon-name-row">
+                    <span class="addon-name">Streaming Catalogs</span>
+                    <span class="badge badge-green">Recommended</span>
+                  </div>
+                  <p class="addon-desc">Curated rows for richer home-screen discovery.</p>
+                </div>
+                <label class="toggle">
+                  <input type="checkbox" id="tog-cat-streaming" onchange="onCatalogToggle('streamingCatalogs', this.checked)" />
+                  <span class="toggle-track"></span>
+                </label>
+              </div>
+
+              <div class="addon-card" id="card-cat-trakt">
+                <div class="addon-info">
+                  <div class="addon-name-row">
+                    <span class="addon-name">Trakt Lists / Sync</span>
+                    <span class="badge badge-muted">Optional</span>
+                  </div>
+                  <p class="addon-desc">Adds synced progress, watchlists, and personal list rows.</p>
+                </div>
+                <label class="toggle">
+                  <input type="checkbox" id="tog-cat-trakt" onchange="onCatalogToggle('trakt', this.checked)" />
+                  <span class="toggle-track"></span>
+                </label>
+              </div>
+
+              <div class="addon-card" id="card-cat-imdb">
+                <div class="addon-info">
+                  <div class="addon-name-row">
+                    <span class="addon-name">IMDb Catalogs</span>
+                    <span class="badge badge-muted">Optional</span>
+                  </div>
+                  <p class="addon-desc">IMDb charts, rankings, and Top 250 discovery rows.</p>
+                </div>
+                <label class="toggle">
+                  <input type="checkbox" id="tog-cat-imdb" onchange="onCatalogToggle('imdbCatalogs', this.checked)" />
+                  <span class="toggle-track"></span>
+                </label>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="wizard-foot">
+            <button class="btn btn-secondary" onclick="goToStep(4)">← Back</button>
+            <div class="spacer"></div>
+            <span class="foot-hint" id="catalogCountLabel"></span>
+            <button class="btn btn-primary" id="step5Next" onclick="goToStep(6)" style="margin-left:10px;">
+              Next: Utilities →
+            </button>
+          </div>
+        </div>
+        <!-- /step5 -->
+
+        <!-- ======================================================
+             STEP 6 — UTILITIES
+        ====================================================== -->
+        <div class="step-panel" id="step6">
+          <div class="wizard-head">
+            <span class="step-eyebrow">Step 6 of 7</span>
+            <h2>Utility Layers</h2>
+            <p>Keep the utility stack lean. Add only high-value utility layers to avoid setup noise.</p>
+          </div>
+
+          <div class="wizard-body">
+            <div class="prefs-card">
+              <div class="prefs-head">
+                <h3 class="prefs-title">Utility Mode</h3>
+                <span class="badge badge-purple">Guided or Manual</span>
+              </div>
+              <div class="wizard-foot" style="padding:0; border-top:none; margin-top:10px;">
+                <button class="btn btn-outline" id="utilityModeRecommended" onclick="setUtilityMode('recommended')">Recommended</button>
+                <button class="btn btn-outline" id="utilityModeManual" onclick="setUtilityMode('manual')" style="margin-left:8px;">Manual</button>
+              </div>
+            </div>
+
+            <div class="addon-list" style="margin-top:14px;">
+              <div class="addon-card" id="card-ut-subs">
+                <div class="addon-info">
+                  <div class="addon-name-row">
+                    <span class="addon-name">OpenSubtitles PRO</span>
+                    <span class="badge badge-green">Recommended</span>
+                  </div>
+                  <p class="addon-desc">Best default subtitle layer for coverage and reliability.</p>
+                </div>
+                <label class="toggle">
+                  <input type="checkbox" id="tog-ut-subs" onchange="onUtilityToggle('openSubtitlesPro', this.checked)" />
+                  <span class="toggle-track"></span>
+                </label>
+              </div>
+
+
+              <div class="addon-card" id="card-ut-statusio">
+                <div class="addon-info">
+                  <div class="addon-name-row">
+                    <span class="addon-name">Statusio</span>
+                    <span class="badge badge-green">Recommended</span>
+                  </div>
+                  <p class="addon-desc">Clean debrid account-health card showing provider, expiration date, and days left.</p>
+                </div>
+                <label class="toggle">
+                  <input type="checkbox" id="tog-ut-statusio" onchange="onUtilityToggle('statusio', this.checked)" />
+                  <span class="toggle-track"></span>
+                </label>
+              </div>
+
+              <div class="addon-card" id="card-ut-subsense">
+                <div class="addon-info">
+                  <div class="addon-name-row">
+                    <span class="addon-name">SubSense</span>
+                    <span class="badge badge-muted">Optional</span>
+                  </div>
+                  <p class="addon-desc">Best single fallback pick if you want broader subtitle coverage beyond OpenSubtitles PRO.</p>
+                </div>
+                <label class="toggle">
+                  <input type="checkbox" id="tog-ut-subsense" onchange="onUtilityToggle('subsense', this.checked)" />
+                  <span class="toggle-track"></span>
+                </label>
+              </div>
+            </div>
+
+            <div class="how-to-note" id="noDebridUtilityHint" style="display:none; margin-top:10px;">
+              ⚠ Free mode is active. Debrid-focused utility addons are hidden and not selected.
+            </div>
+
+          </div>
+
+          <div class="wizard-foot">
+            <button class="btn btn-secondary" onclick="goToStep(5)">← Back</button>
+            <div class="spacer"></div>
+            <span class="foot-hint" id="utilityCountLabel"></span>
+            <button class="btn btn-primary" id="step6Next" onclick="goToStep(7)" style="margin-left:10px;">
+              Review & Generate →
+            </button>
+          </div>
+        </div>
+        <!-- /step6 -->
+
+        <!-- ======================================================
+             STEP 7 — GENERATE SETUP
+        ====================================================== -->
+        <div class="step-panel" id="step7">
+          <div class="wizard-head">
+            <span class="step-eyebrow">Step 7 of 7</span>
+            <h2>Review & Generate</h2>
+            <p>Review your setup and generate your install checklist.</p>
+          </div>
+
+          <div class="wizard-body">
+            <div class="summary-grid" id="summaryGrid"></div>
+
+            <div class="gen-cta">
+              <button class="btn btn-primary btn-lg" id="generateBtn" onclick="generateConfig()">
+                Generate Install Checklist
+              </button>
+            </div>
+
+            <div class="links-output" id="linksOutput">
+              <div class="links-header">
+                <h3>Your Install Checklist</h3>
+                <span class="links-header-status" id="installProgressLabel">Ready</span>
+              </div>
+
+              <p style="font-size:13px; color:var(--text-secondary); margin:10px 0 4px; line-height:1.65;">
+                Work through each section in order. Use <strong>Open in Stremio</strong> for preconfigured items and <strong>Open install page</strong> where manual setup is still needed. Items are marked as you click them.
+              </p>
+
+              <div class="how-to-note" id="torrentOnlyNote" style="display:none; margin-top:10px;">
+                ⚠ <strong>Free mode:</strong> Uses Stremio Desktop or Stremio Service for playback. Stream speed and availability depend on live peers.
+              </div>
+
+              <div id="installSections">
+                <!-- Populated by JS -->
+              </div>
+
+              <div class="security-note" id="debridSecurityNote" style="margin-top:16px; display:none;">
+                ⚠ <strong>Security:</strong> These URLs contain your debrid API token embedded in the path.
+                Do not share them publicly or post them online.
+              </div>
+            </div>
+          </div>
+
+          <div class="wizard-foot">
+            <button class="btn btn-secondary" onclick="goToStep(6)">← Back</button>
+            <div class="spacer"></div>
+            <button class="btn btn-danger" onclick="resetSetup()">Reset Setup</button>
+          </div>
+        </div>
+        <!-- /step7 -->
+
+      </div>
+      <!-- /wizard -->
+
+    </div>
+  </main>
+
+  <!-- ============================================================
+       FOOTER
+  ============================================================ -->
+  <footer class="site-footer">
+    Stremio Setup Optimizer &mdash; Not affiliated with Stremio or Real-Debrid.
+    For personal use only. Your API key is never stored or transmitted beyond your browser session.
+  </footer>
+
+</div>
+<!-- /app -->
+
+<!-- ============================================================
+     JAVASCRIPT
+============================================================ -->
+<script>
+  /* ================================================================
+     STREMIO SETUP OPTIMIZER — MAIN SCRIPT
+     ================================================================
+     Module overview:
+       STATE          — Central app state
+       NAVIGATION     — goToStep(), renderPanels(), updateProgress()
+       STEP 1         — global content preferences
+       STEP 2         — selectDebridService()
+       STEP 3         — onApiKeyInput(), toggleKeyVisibility(),
+                        validateApiKey(), updateTokenStepUI()
+       STEP 4         — applyScraperDefaults(), onAddonToggle(),
+                        updateAddonUI(), renderSuggestion()
+       STEP 5/6       — catalogs/utilities guided + manual selection
+       STEP 7         — populateSummary(), generateConfig(),
+                        renderInstallLinks()
+       UTILS          — copyToClipboard(), resetSetup(), escapeHtml()
+       INIT           — init()
+     ================================================================ */
+
+  /* ================================================================
+     STATE
+     ================================================================ */
+
+  /**
+   * Central application state object.
+    * All mutable data lives here.
+   */
+  const state = {
+    currentStep : 1,
+    debridService: null,     // 'realdebrid' | 'alldebrid' | 'premiumize' | 'none'
+    apiKey      : '',
+    generatedInstallLinks : [],
+    installedItems        : new Set(),
+    preferences : {
+      audioLanguages      : ['en'],
+      subtitleLanguages   : ['en'],
+      strictLanguageOnly  : true,
+      allowEnglishFallback: false,
+    },
+    scrapers    : {
+      torrentio     : true,    // Default on; can be toggled off in manual mode if another scraper is active
+      torrentsdb    : false,
+      mediafusion   : false,
+    },
+    scraperMode : 'recommended', // 'recommended' | 'manual'
+    scraperPreset: 'speed',      // 'speed' | 'coverage' | 'max'
+    catalogMode : 'recommended',
+    catalogs    : {
+      tmdbCollections  : true,
+      streamingCatalogs: true,
+      trakt            : false,
+      imdbCatalogs     : false,
+    },
+    utilityMode : 'recommended',
+    utilities   : {
+      openSubtitlesPro: true,
+      statusio        : true,
+      subsense        : false,
+    },
+    scraperHealth: {
+      torrentio: null,
+      torrentsdb: null,
+      mediafusion: null,
+    },
+    scraperHealthCheckedAt: 0,
+  };
+
+  const RESULT_PROFILE = {
+    label: 'Standard',
+    torrentioFilter: 'sort=qualitysize&qualityfilter=scr,cam,other,unknown&limit=12',
+    mfQualityFilter: ['BluRay/UHD', 'WEB/HD', 'DVD/TV/SAT'],
+    summary: 'Balanced results · 480p-4k only',
+  };
+
+  const SCRAPER_PRESETS = {
+    speed   : ['torrentio', 'mediafusion'],
+    coverage: ['torrentio', 'torrentsdb'],
+    max     : ['torrentio', 'torrentsdb', 'mediafusion'],
+  };
+
+  const LAYER_LABELS = {
+    tmdbCollections  : 'TMDB Collections',
+    streamingCatalogs: 'Streaming Catalogs',
+    trakt            : 'Trakt Lists / Sync',
+    imdbCatalogs     : 'IMDb Catalogs',
+    openSubtitlesPro : 'OpenSubtitles PRO',
+    statusio         : 'Statusio',
+    subsense         : 'SubSense',
+  };
+
+  const LAYER_SETTINGS_GUIDE = {
+    tmdbCollections: 'Preconfigured for a lean setup: Popular, New Releases, and Top Rated are enabled; adult content is off; search stays on; and collection links from movie details stay enabled. Country and company charts are disabled to avoid extra discovery clutter.',
+    streamingCatalogs: 'Preconfigured for a clean North America profile using the United States region: Netflix, Max, Disney+, Prime Video, Apple TV+, and Hulu. RPDB is off and Netflix Top 10 rows are disabled to keep the home screen tighter.',
+    trakt: 'Connect Trakt, then enable only Watchlist/Collection plus 1-2 personal lists. Avoid enabling every list type to keep navigation clean.',
+    imdbCatalogs: 'Preconfigured for the default IMDb catalog set with no RPDB poster integration. If you want RPDB-enabled posters later, reconfigure the addon manually after install.',
+    openSubtitlesPro: 'Preconfigured as a lean primary subtitle source: your top 3 subtitle languages are added automatically, source is set to All, AI-translated subtitles stay enabled for better coverage, and MovieHash auto-adjustment stays off to avoid extra noise.',
+    statusio: 'Preconfigured from your selected debrid provider and token. Visibility is set to only show close to expiration to reduce stream-card clutter.',
+    subsense: 'Preconfigured for your top 5 subtitle languages with a 10-results-per-language cap. Optional API-key-backed sources are left off in the automated install; reconfigure manually later if you want the extra providers.',
+  };
+
+  const IMDB_CATALOGS_BASE_URL = 'https://1fe84bc728af-imdb-catalogs.baby-beamup.club';
+
+  const OPENSUBTITLES_PRO_BASE_URL = 'https://opensubtitlesv3-pro.dexter21767.com';
+
+  const OPENSUBTITLES_PRO_PROFILE = {
+    source: 'all',
+    aiTranslated: true,
+    autoAdjustment: false,
+  };
+
+  const OPENSUBTITLES_PRO_LANGUAGE_MAP = {
+    en: 'english',
+    es: 'spanish',
+    pt: 'portuguese',
+    fr: 'french',
+    de: 'german',
+    it: 'italian',
+    ja: 'japanese',
+    ko: 'korean',
+    hi: 'hindi',
+  };
+
+  const SUBSENSE_BASE_URL = 'https://subsense.nepiraw.com';
+  const SUBSENSE_USER_ID = 'wizard00';
+  const SUBSENSE_DEFAULT_MAX_SUBTITLES = 10;
+
+  const STATUSIO_BASE_URL = 'https://statusio.elfhosted.com';
+
+  const STATUSIO_PROFILE = {
+    cache_minutes: '45',
+    show_quotes: 'yes',
+    visibility_mode: 'only when close to expiration (\u226430 days or less)',
+    demo_mode: 'off',
+    rd_token: '',
+    ad_key: '',
+    pm_key: '',
+    tb_token: '',
+    dl_key: '',
+    dl_auth: 'Bearer',
+    dl_endpoint: 'https://debrid-link.com/api/account/infos',
+  };
+
+  const TMDB_COLLECTIONS_BASE_URL = 'https://61ab9c85a149-tmdb-collections.baby-beamup.club';
+
+  const TMDB_COLLECTIONS_PROFILE = {
+    enableAdultContent: false,
+    enableSearch: true,
+    enableCollectionFromMovie: true,
+    catalogList: ['popular', 'newReleases', 'topRated'],
+    discoverOnly: {
+      popular: false,
+      newReleases: false,
+      topRated: false,
+    },
+  };
+
+  const STREAMING_CATALOGS_BASE_URL = 'https://7a82163c306e-stremio-netflix-catalog-addon.baby-beamup.club';
+
+  const STREAMING_CATALOGS_PROFILE = {
+    countryCode: 'US',
+    providers: ['nfx', 'hbm', 'dnp', 'amp', 'atp', 'hlu'],
+    rpdbKey: '',
+    netflixTop10Global: '0',
+    netflixTop10Country: '0',
+    netflixTop10CountryCode: '',
+  };
+
+  const LAYER_INSTALL_LINKS = {
+    tmdbCollections: `${TMDB_COLLECTIONS_BASE_URL}/configure`,
+    streamingCatalogs: `${STREAMING_CATALOGS_BASE_URL}/configure`,
+    trakt: 'https://stremio-addons.net/addons?search=trakt',
+    imdbCatalogs: 'https://stremio-addons.net/addons/imdb-catalogs',
+    openSubtitlesPro: `${OPENSUBTITLES_PRO_BASE_URL}/configure`,
+    statusio: 'https://statusio.elfhosted.com/configure',
+    subsense: SUBSENSE_BASE_URL,
+  };
+
+  function getPreferredMetadataLanguage() {
+    return state.preferences.subtitleLanguages[0] || state.preferences.audioLanguages[0] || 'en';
+  }
+
+  function getSubSenseLanguageCodes() {
+    const selectedLanguages = state.preferences.subtitleLanguages.slice(0, 5);
+    return selectedLanguages.length ? selectedLanguages : ['en'];
+  }
+
+  function getOpenSubtitlesProLanguageIds() {
+    const selectedLanguages = state.preferences.subtitleLanguages
+      .map(code => OPENSUBTITLES_PRO_LANGUAGE_MAP[code])
+      .filter(Boolean)
+      .slice(0, 3);
+
+    return selectedLanguages.length ? selectedLanguages : ['english'];
+  }
+
+  function toBase64Utf8(value) {
+    const utf8Bytes = new TextEncoder().encode(value);
+    let binary = '';
+
+    for (const byte of utf8Bytes) {
+      binary += String.fromCharCode(byte);
+    }
+
+    return btoa(binary);
+  }
+
+  function buildTmdbCollectionsManifestUrl() {
+    const config = {
+      ...TMDB_COLLECTIONS_PROFILE,
+      language: getPreferredMetadataLanguage(),
+    };
+
+    const encodedConfig = encodeURIComponent(JSON.stringify(config));
+    return `${TMDB_COLLECTIONS_BASE_URL}/${encodedConfig}/manifest.json`;
+  }
+
+  function buildStreamingCatalogsManifestUrl() {
+    const configParts = [
+      STREAMING_CATALOGS_PROFILE.providers.join(','),
+      STREAMING_CATALOGS_PROFILE.rpdbKey,
+      STREAMING_CATALOGS_PROFILE.countryCode,
+      String(Date.now()),
+      STREAMING_CATALOGS_PROFILE.netflixTop10Global,
+      STREAMING_CATALOGS_PROFILE.netflixTop10Country,
+      STREAMING_CATALOGS_PROFILE.netflixTop10CountryCode,
+    ];
+
+    const encodedConfig = encodeURIComponent(toBase64Utf8(configParts.join(':')));
+    return `${STREAMING_CATALOGS_BASE_URL}/${encodedConfig}/manifest.json`;
+  }
+
+  function buildImdbCatalogsManifestUrl() {
+    return `${IMDB_CATALOGS_BASE_URL}/manifest.json`;
+  }
+
+  function buildOpenSubtitlesProManifestUrl() {
+    const config = {
+      langs: getOpenSubtitlesProLanguageIds(),
+      ...OPENSUBTITLES_PRO_PROFILE,
+    };
+
+    const encodedConfig = encodeURIComponent(toBase64Utf8(JSON.stringify(config)));
+    return `${OPENSUBTITLES_PRO_BASE_URL}/${encodedConfig}/manifest.json`;
+  }
+
+  function buildSubSenseManifestUrl() {
+    const config = {
+      languages: getSubSenseLanguageCodes(),
+      maxSubtitles: SUBSENSE_DEFAULT_MAX_SUBTITLES,
+    };
+
+    const encodedConfig = encodeURIComponent(JSON.stringify(config));
+    return `${SUBSENSE_BASE_URL}/${SUBSENSE_USER_ID}-${encodedConfig}/manifest.json`;
+  }
+
+  function buildStatusioManifestUrl() {
+    const config = {
+      ...STATUSIO_PROFILE,
+    };
+
+    if (state.debridService === 'realdebrid') {
+      config.rd_token = state.apiKey;
+    } else if (state.debridService === 'alldebrid') {
+      config.ad_key = state.apiKey;
+    } else if (state.debridService === 'premiumize') {
+      config.pm_key = state.apiKey;
+    }
+
+    const encodedConfig = encodeURIComponent(JSON.stringify(config));
+    return `${STATUSIO_BASE_URL}/${encodedConfig}/manifest.json`;
+  }
+
+  const SCRAPER_REGISTRY = {
+    torrentio: {
+      label: 'Torrentio',
+      healthUrl: 'https://torrentio.strem.fun/manifest.json',
+    },
+    torrentsdb: {
+      label: 'Sootio',
+      healthUrl: 'https://sootiofortheweebs.midnightignite.me/manifest.json',
+    },
+    mediafusion: {
+      label: 'MediaFusion',
+      healthUrl: 'https://mediafusion.elfhosted.com/manifest.json',
+    },
+  };
+
+  const SOOTIO_LANGUAGE_MAP = {
+    en: 'English',
+    es: 'Spanish',
+    pt: 'Portuguese',
+    fr: 'French',
+    de: 'German',
+    it: 'Italian',
+    ja: 'Japanese',
+    ko: 'Korean',
+    hi: 'Hindi',
+  };
+
+  const MEDIAFUSION_LANGUAGE_MAP = {
+    en: 'English',
+    es: 'Spanish',
+    pt: 'Portuguese',
+    fr: 'French',
+    de: 'German',
+    it: 'Italian',
+    ja: 'Japanese',
+    ko: 'Korean',
+    hi: 'Hindi',
+  };
+
+  const HEALTH_TTL_MS = 5 * 60 * 1000;
+
+  /** Step metadata used for the progress indicator. */
+  const STEPS = [
+    { id: 1, label: 'Preferences'     },
+    { id: 2, label: 'Debrid Service'  },
+    { id: 3, label: 'API Token'       },
+    { id: 4, label: 'Scrapers'        },
+    { id: 5, label: 'Catalogs'        },
+    { id: 6, label: 'Utilities'       },
+    { id: 7, label: 'Generate'        },
+  ];
+
+  /**
+   * Per-service configuration for URL generation.
+   * torrentioParam(key) returns the debrid token segment for Torrentio URLs.
+  * mfService is the string ID MediaFusion expects.
+   */
+  const DEBRID_CONFIG = {
+    realdebrid: {
+      name       : 'Real-Debrid',
+      signupUrl  : 'https://real-debrid.com/',
+      tokenUrl   : 'https://real-debrid.com/',
+      tokenLabel : 'Real-Debrid API Token',
+      torrentioParam : key => `realdebrid=${encodeURIComponent(key)}`,
+      sootioProvider : 'RealDebrid',
+      mfService      : 'realdebrid',
+    },
+    alldebrid: {
+      name       : 'AllDebrid',
+      signupUrl  : 'https://alldebrid.com/',
+      tokenUrl   : 'https://alldebrid.com/apikeys/',
+      tokenLabel : 'AllDebrid API Key',
+      torrentioParam : key => `alldebrid=${encodeURIComponent(key)}`,
+      sootioProvider : 'AllDebrid',
+      mfService      : 'alldebrid',
+    },
+    premiumize: {
+      name       : 'Premiumize',
+      signupUrl  : 'https://www.premiumize.me/',
+      tokenUrl   : 'https://www.premiumize.me/account',
+      tokenLabel : 'Premiumize API Key',
+      torrentioParam : key => `premiumize=${encodeURIComponent(key)}`,
+      sootioProvider : 'Premiumize',
+      mfService      : 'premiumize',
+    },
+  };
+
+  /* ================================================================
+     NAVIGATION
+     ================================================================ */
+
+  /**
+  * Navigates to the given wizard step.
+  * Enforces prerequisites: step 3+ needs a debrid service,
+  * step 4+ needs a token entered.
+   * @param {number} step - Target step number (1–7)
+   */
+  function goToStep(step) {
+    // Skip the token step entirely in torrent-only mode
+    if (step === 3 && state.debridService === 'none') {
+      step = state.currentStep >= 4 ? 2 : 4;
+    }
+    if (step > 2 && !state.debridService) return;
+    if (step > 3 && state.debridService !== 'none' && !validateApiKey(state.apiKey)) return;
+    if (step > 4 && countSelectedScrapers() === 0) return;
+
+    // Update token step UI when entering step 3
+    if (step === 3) {
+      updateTokenStepUI();
+    }
+
+    if (step === 4) {
+      updateAddonUI();
+    }
+
+    if (step === 5) {
+      updateCatalogUI();
+    }
+
+    if (step === 6) {
+      updateUtilityUI();
+    }
+
+    // Prepare step 7 every time it becomes active
+    if (step === 7) {
+      populateSummary();
+      renderScraperHealth();
+      // Reset generate button in case user came back and re-entered
+      const genBtn = document.getElementById('generateBtn');
+      genBtn.disabled  = false;
+      genBtn.innerHTML = 'Generate Install Links';
+      document.getElementById('linksOutput').style.display = 'none';
+      document.getElementById('installSections').innerHTML = '';
+      state.generatedInstallLinks = [];
+      state.installedItems.clear();
+    }
+
+    state.currentStep = step;
+    renderPanels();
+    updateProgress();
+
+    // Always bring the next step to the top of view.
+    document.getElementById('wizardCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function renderScraperHealth() {
+    ['torrentio', 'torrentsdb', 'mediafusion'].forEach(id => {
+      const target = document.getElementById(`health-${id}`);
+      if (!target) return;
+      const status = state.scraperHealth[id];
+      if (!status) {
+        target.innerHTML = 'Status: <b>Not checked</b>';
+        return;
+      }
+      const txt = status.status === 'active'
+        ? 'Active'
+        : status.status === 'degraded'
+          ? 'Degraded'
+          : status.status === 'offline'
+            ? 'Offline'
+            : 'Unknown';
+      target.innerHTML = `Status: <b>${txt}</b>`;
+    });
+  }
+
+  async function probeScraperHealth(url, timeoutMs = 4500) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+
+    try {
+      const res = await fetch(url, {
+        method: 'GET',
+        mode: 'cors',
+        cache: 'no-store',
+        signal: controller.signal,
+      });
+      if (res.ok) return { status: 'active', detail: 'Manifest reachable' };
+      return { status: 'degraded', detail: `HTTP ${res.status}` };
+    } catch {
+      try {
+        await fetch(url, { method: 'GET', mode: 'no-cors', cache: 'no-store' });
+        return { status: 'unknown', detail: 'Reachable but CORS-blocked for validation' };
+      } catch {
+        return { status: 'offline', detail: 'Unreachable from browser' };
+      }
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+
+  function hasFreshHealthData() {
+    if (!state.scraperHealthCheckedAt) return false;
+    return (Date.now() - state.scraperHealthCheckedAt) < HEALTH_TTL_MS;
+  }
+
+  async function verifySelectedScrapersHealth() {
+    const selected = ['torrentio', 'torrentsdb', 'mediafusion'].filter(k => state.scrapers[k]);
+    if (!selected.length) return true;
+
+    for (const id of selected) {
+      const registry = SCRAPER_REGISTRY[id];
+      if (!registry) continue;
+      state.scraperHealth[id] = await probeScraperHealth(registry.healthUrl);
+    }
+
+    state.scraperHealthCheckedAt = Date.now();
+    renderScraperHealth();
+
+    const offline = selected.filter(id => state.scraperHealth[id]?.status === 'offline');
+    return offline.length === 0;
+  }
+
+  /** Activates only the panel matching the current step. */
+  function renderPanels() {
+    STEPS.forEach(({ id }) => {
+      const el = document.getElementById(`step${id}`);
+      if (el) el.classList.toggle('active', id === state.currentStep);
+    });
+  }
+
+  /** Renders the progress indicator dots and connector lines. */
+  function updateProgress() {
+    const track = document.getElementById('progressTrack');
+    if (!track) return;
+    track.innerHTML = '';
+
+    STEPS.forEach(({ id, label }) => {
+      const isActive    = id === state.currentStep;
+      const isCompleted = id < state.currentStep;
+
+      const step = document.createElement('div');
+      step.className = 'prog-step'
+        + (isActive    ? ' active' : '')
+        + (isCompleted ? ' done'   : '');
+
+      // Dot
+      const dot = document.createElement('div');
+      dot.className   = 'prog-dot';
+      dot.textContent = isCompleted ? '✓' : String(id);
+
+      // Label
+      const lbl = document.createElement('div');
+      lbl.className   = 'prog-label';
+      lbl.textContent = label;
+
+      step.appendChild(dot);
+      step.appendChild(lbl);
+      track.appendChild(step);
+    });
+  }
+
+  /* ================================================================
+     STEP 1 — GLOBAL PREFERENCES
+     ================================================================ */
+
+  /**
+   * Handles language chip selections for audio or subtitle preferences.
+   * Ensures at least one language remains selected for each category.
+   * @param {'audio'|'subtitle'} kind
+   * @param {string} code
+   * @param {boolean} checked
+   */
+  function onLanguageToggle(kind, code, checked) {
+    const key = kind === 'audio' ? 'audioLanguages' : 'subtitleLanguages';
+    const list = state.preferences[key];
+
+    if (checked && !list.includes(code)) {
+      list.push(code);
+    }
+
+    if (!checked) {
+      const idx = list.indexOf(code);
+      if (idx !== -1) list.splice(idx, 1);
+
+      // Keep at least one language selected to avoid empty filter payloads.
+      if (!list.length) {
+        list.push('en');
+        const fallbackEl = document.getElementById(`${kind === 'audio' ? 'aud' : 'sub'}-en`);
+        if (fallbackEl) fallbackEl.checked = true;
+      }
+    }
+
+    renderPreferencesSummary();
+  }
+
+  /**
+   * Updates boolean global preference toggles.
+    * @param {'strictLanguageOnly'|'allowEnglishFallback'} key
+   * @param {boolean} checked
+   */
+  function onPreferenceToggle(key, checked) {
+    if (key === 'allowEnglishFallback' && state.preferences.strictLanguageOnly && checked) {
+      checked = false;
+    }
+
+    state.preferences[key] = checked;
+
+    if (key === 'strictLanguageOnly' && checked) {
+      state.preferences.allowEnglishFallback = false;
+    }
+
+    syncLanguagePreferenceControls();
+    renderPreferencesSummary();
+  }
+
+  /**
+   * Keeps strict/fallback controls in a consistent state.
+   */
+  function syncLanguagePreferenceControls() {
+    const strictEl = document.getElementById('pref-strict-lang');
+    const fallbackEl = document.getElementById('pref-fallback-en');
+    if (!strictEl || !fallbackEl) return;
+
+    strictEl.checked = state.preferences.strictLanguageOnly;
+
+    if (state.preferences.strictLanguageOnly) {
+      state.preferences.allowEnglishFallback = false;
+      fallbackEl.checked = false;
+      fallbackEl.disabled = true;
+      return;
+    }
+
+    fallbackEl.disabled = false;
+    fallbackEl.checked = state.preferences.allowEnglishFallback;
+  }
+
+  /** Renders a short summary of selected language preferences in Step 1. */
+  function renderPreferencesSummary() {
+    const el = document.getElementById('prefsSummaryText');
+    if (!el) return;
+
+    syncLanguagePreferenceControls();
+
+    const pref = state.preferences;
+    const audio = pref.audioLanguages.join(', ').toUpperCase();
+    const subs  = pref.subtitleLanguages.join(', ').toUpperCase();
+    const strict = pref.strictLanguageOnly ? 'Strict' : 'Priority';
+    const fallback = pref.allowEnglishFallback ? 'EN fallback ON' : 'EN fallback OFF';
+
+    el.textContent = `Audio: ${audio} | Subtitles: ${subs} | ${strict} mode | ${fallback}`;
+  }
+
+  /* ================================================================
+     STEP 2 — DEBRID SERVICE SELECTION
+     ================================================================ */
+
+  /**
+   * Handles selection of a debrid service card.
+  * @param {'realdebrid'|'alldebrid'|'premiumize'|'none'} service
+   */
+  function selectDebridService(service) {
+    // Deselect all debrid cards
+    document.querySelectorAll('[id^="debridcard-"]').forEach(c => c.classList.remove('selected'));
+    document.querySelectorAll('[id^="debridradio-"]').forEach(r => r.classList.remove('selected'));
+
+    // Select clicked card
+    const card  = document.getElementById(`debridcard-${service}`);
+    const radio = document.getElementById(`debridradio-${service}`);
+    if (card)  card.classList.add('selected');
+    if (radio) radio.classList.add('selected');
+
+    state.debridService = service;
+    enforceDebridCompatibility();
+
+    const nextBtn = document.getElementById('step2Next');
+    nextBtn.disabled = false;
+    nextBtn.textContent = service === 'none' ? 'Next: Scraper Pairing →' : 'Next: Enter Token →';
+    document.getElementById('step2Hint').textContent = '';
+  }
+
+  /**
+   * Enforces addon compatibility rules based on selected debrid mode.
+   */
+  function enforceDebridCompatibility() {
+    const noDebrid = state.debridService === 'none';
+
+    if (noDebrid) {
+      state.scrapers.torrentsdb = false;
+      state.scrapers.mediafusion = false;
+      if (state.scraperMode === 'recommended' || !countSelectedScrapers()) {
+        state.scrapers.torrentio = true;
+      }
+    }
+
+    // Statusio is debrid-focused and shown only for debrid-backed setups.
+    if (noDebrid) {
+      state.utilities.statusio = false;
+    } else if (state.utilityMode === 'recommended') {
+      state.utilities.statusio = true;
+    }
+
+    updateUtilityCompatibilityUI();
+  }
+
+  /**
+   * Hides/shows utility cards that are incompatible with current debrid mode.
+   */
+  function updateUtilityCompatibilityUI() {
+    const noDebrid = state.debridService === 'none';
+    const statusioCard = document.getElementById('card-ut-statusio');
+    const statusioToggle = document.getElementById('tog-ut-statusio');
+    const hint = document.getElementById('noDebridUtilityHint');
+
+    if (statusioCard) statusioCard.style.display = noDebrid ? 'none' : '';
+    if (statusioToggle && noDebrid) statusioToggle.checked = false;
+    if (hint) hint.style.display = noDebrid ? 'block' : 'none';
+  }
+
+  /* ================================================================
+     STEP 3 — API TOKEN
+     ================================================================ */
+
+  /**
+   * Updates the token step heading and link to reflect the selected debrid service.
+   * Called each time step 3 becomes active.
+   */
+  function updateTokenStepUI() {
+    const cfg = DEBRID_CONFIG[state.debridService];
+    if (!cfg) return;
+
+    const titleEl = document.getElementById('debridServiceTitle');
+    const linkEl  = document.getElementById('debridTokenLink');
+    const signupNameEl = document.getElementById('debridSignupServiceName');
+    const signupLinkEl = document.getElementById('debridSignupLink');
+    const labelEl = document.getElementById('debridTokenLabel');
+
+    if (titleEl) titleEl.textContent = cfg.name;
+    if (linkEl)  { linkEl.href = cfg.tokenUrl; linkEl.textContent = `${cfg.name} account settings`; }
+    if (signupNameEl) signupNameEl.textContent = cfg.name;
+    if (signupLinkEl) {
+      signupLinkEl.href = cfg.signupUrl || cfg.tokenUrl;
+      signupLinkEl.textContent = `Create ${cfg.name} account`;
+    }
+    if (labelEl) labelEl.textContent = cfg.tokenLabel;
+  }
+
+  /**
+   * Accept any non-empty token so users can paste what Real-Debrid provides
+   * and continue without client-side format assumptions.
+   * @param {string} key
+   * @returns {boolean}
+   */
+  function validateApiKey(key) {
+    return typeof key === 'string' && key.trim().length > 0;
+  }
+
+  /** Fires on every keystroke in the API key field. */
+  function onApiKeyInput() {
+    const val = document.getElementById('apiKeyInput').value;
+    state.apiKey = val.trim();
+
+    const ok = validateApiKey(state.apiKey);
+    document.getElementById('step3Next').disabled = !ok;
+  }
+
+  /** Toggles the API key input between password and text type. */
+  function toggleKeyVisibility() {
+    const input = document.getElementById('apiKeyInput');
+    const btn   = document.getElementById('toggleKeyVisibility');
+    if (input.type === 'password') {
+      input.type      = 'text';
+      btn.textContent = '🙈';
+    } else {
+      input.type      = 'password';
+      btn.textContent = '👁';
+    }
+  }
+
+  /* ================================================================
+     STEP 4 — SCRAPERS
+     ================================================================ */
+
+  function applyScraperDefaults() {
+    state.scraperMode = 'recommended';
+    state.scraperPreset = 'speed';
+
+    applyScraperPreset(state.scraperPreset);
+  }
+
+  function setScraperMode(mode) {
+    state.scraperMode = mode;
+    if (mode === 'recommended') {
+      applyScraperPreset(state.scraperPreset || 'speed');
+      return;
+    }
+    updateAddonUI();
+  }
+
+  function selectScraperPreset(preset) {
+    state.scraperPreset = preset;
+    applyScraperPreset(preset);
+  }
+
+  function applyScraperPreset(preset) {
+    const selected = SCRAPER_PRESETS[preset] || SCRAPER_PRESETS.speed;
+    state.scrapers.torrentio     = selected.includes('torrentio');
+    state.scrapers.torrentsdb = selected.includes('torrentsdb');
+    state.scrapers.mediafusion   = selected.includes('mediafusion');
+
+    // Free mode supports Torrentio only on public instances.
+    if (state.debridService === 'none') {
+      state.scrapers.torrentsdb = false;
+      state.scrapers.mediafusion = false;
+      state.scrapers.torrentio = true;
+    }
+
+    updateAddonUI();
+  }
+
+  function onAddonToggle(id, checked) {
+    if (state.scraperMode !== 'manual') return;
+    state.scrapers[id] = checked;
+
+    if (!countSelectedScrapers()) {
+      state.scrapers.torrentio = true;
+      const warn = document.getElementById('limitWarning');
+      if (warn) {
+        warn.textContent = '⚠ At least one scraper is required. Torrentio has been re-enabled.';
+        warn.classList.add('show');
+        clearTimeout(window._scrWarnTimer);
+        window._scrWarnTimer = setTimeout(() => warn.classList.remove('show'), 2600);
+      }
+    }
+
+    updateAddonUI();
+  }
+
+  function countSelectedScrapers() {
+    return ['torrentio', 'torrentsdb', 'mediafusion'].filter(k => state.scrapers[k]).length;
+  }
+
+  function updateAddonUI() {
+    // Keep scraper state valid when the user is in Free mode.
+    const noDebrid = state.debridService === 'none';
+    if (noDebrid) {
+      state.scraperMode = 'recommended';
+      state.scrapers.torrentsdb = false;
+      state.scrapers.mediafusion = false;
+      state.scrapers.torrentio = true;
+    }
+
+    const step4Title = document.getElementById('step4Title');
+    const step4Desc = document.getElementById('step4Desc');
+    const freeModeNote = document.getElementById('freeModeScraperNote');
+    const suggestionBanner = document.getElementById('suggestionBanner');
+    const scraperModeWrap = document.getElementById('scraperModeWrap');
+    if (step4Title) {
+      step4Title.textContent = noDebrid ? 'Choose Scraper (Free Mode)' : 'Choose Scraper Pairing';
+    }
+    if (step4Desc) {
+      step4Desc.textContent = noDebrid
+        ? 'Free mode uses torrent peers and currently supports one reliable public scraper option.'
+        : 'Use a guided pairing for the easiest setup, or switch to manual if you want full control over active scrapers.';
+    }
+    if (freeModeNote) {
+      freeModeNote.style.display = noDebrid ? 'block' : 'none';
+    }
+    if (suggestionBanner) {
+      suggestionBanner.style.display = noDebrid ? 'none' : 'flex';
+    }
+    if (scraperModeWrap) {
+      scraperModeWrap.style.display = noDebrid ? 'none' : 'block';
+    }
+
+    const debridOnlyCards = [
+      document.getElementById('card-torrentsdb'),
+      document.getElementById('card-mediafusion'),
+    ];
+    debridOnlyCards.forEach(card => {
+      if (!card) return;
+      card.style.display = noDebrid ? 'none' : '';
+    });
+
+    ['torrentio', 'torrentsdb', 'mediafusion'].forEach(id => {
+      const tog  = document.getElementById(`tog-${id}`);
+      const card = document.getElementById(`card-${id}`);
+      if (!tog || !card) return;
+
+      const isOn = state.scrapers[id];
+      const isDebridOnlyDisabled = ['torrentsdb', 'mediafusion'].includes(id) && state.debridService === 'none';
+      tog.checked = isOn;
+      tog.disabled = noDebrid || state.scraperMode !== 'manual' || isDebridOnlyDisabled;
+      card.classList.toggle('is-on', isOn);
+      card.classList.toggle('is-locked', noDebrid || state.scraperMode !== 'manual' || isDebridOnlyDisabled);
+    });
+
+    renderScraperHealth();
+
+    const recommendedBtn = document.getElementById('scraperModeRecommended');
+    const manualBtn      = document.getElementById('scraperModeManual');
+    const presetWrap     = document.getElementById('scraperPresetWrap');
+    if (recommendedBtn) {
+      recommendedBtn.disabled = noDebrid;
+      recommendedBtn.title = noDebrid ? 'Only one supported scraper is available in Free mode.' : '';
+    }
+    if (manualBtn) {
+      manualBtn.disabled = noDebrid;
+      manualBtn.title = noDebrid ? 'Only one supported scraper is available in Free mode.' : '';
+    }
+    if (recommendedBtn) recommendedBtn.className = `btn ${state.scraperMode === 'recommended' ? 'btn-primary' : 'btn-outline'}`;
+    if (manualBtn) manualBtn.className = `btn ${state.scraperMode === 'manual' ? 'btn-primary' : 'btn-outline'}`;
+    if (presetWrap) presetWrap.style.display = (state.scraperMode === 'recommended' && !noDebrid) ? 'block' : 'none';
+
+    ['speed', 'coverage', 'max'].forEach(p => {
+      const card = document.getElementById(`preset-${p}`);
+      const dot  = document.getElementById(`preset-radio-${p}`);
+      if (!card || !dot) return;
+      const active = state.scraperPreset === p;
+      card.classList.toggle('selected', active);
+      dot.classList.toggle('selected', active);
+    });
+
+    const count = countSelectedScrapers();
+    const lbl   = document.getElementById('addonCountLabel');
+    if (lbl) lbl.textContent = `${count} scraper${count !== 1 ? 's' : ''} selected`;
+
+    const next = document.getElementById('step4Next');
+    if (next) next.disabled = count === 0;
+
+    renderSuggestion();
+  }
+
+  function renderSuggestion() {
+    const el = document.getElementById('suggestionBanner');
+    if (!el) return;
+
+    if (state.debridService === 'none') {
+      el.textContent = 'Free mode uses Torrentio as the active scraper.';
+      return;
+    }
+
+    if (state.scraperMode === 'manual') {
+      el.textContent = 'Manual mode: choose your own primary/backup mix. Two scrapers usually give the cleanest results.';
+      return;
+    }
+
+    const labels = {
+      speed   : 'Recommended pairing: Torrentio + MediaFusion (best default balance).',
+      coverage: 'Coverage pairing: Torrentio + Sootio (debrid-first backup with broader aggregated coverage).',
+      max     : 'Max fallback pairing: Torrentio + MediaFusion + Sootio for stronger outage resilience.',
+    };
+    el.textContent = labels[state.scraperPreset] || labels.speed;
+  }
+
+  /* ================================================================
+     STEP 5 — CATALOGS
+     ================================================================ */
+
+  function applyCatalogDefaults() {
+    state.catalogMode = 'recommended';
+    state.catalogs.tmdbCollections = true;
+    state.catalogs.streamingCatalogs = true;
+    state.catalogs.trakt = false;
+    state.catalogs.imdbCatalogs = false;
+    updateCatalogUI();
+  }
+
+  function setCatalogMode(mode) {
+    state.catalogMode = mode;
+    if (mode === 'recommended') {
+      applyCatalogDefaults();
+      return;
+    }
+    updateCatalogUI();
+  }
+
+  function onCatalogToggle(id, checked) {
+    if (state.catalogMode !== 'manual') return;
+    state.catalogs[id] = checked;
+    if (!countSelectedCatalogs()) state.catalogs.tmdbCollections = true;
+    updateCatalogUI();
+  }
+
+  function countSelectedCatalogs() {
+    return Object.values(state.catalogs).filter(Boolean).length;
+  }
+
+  function updateCatalogUI() {
+    const map = {
+      tmdbCollections: 'card-cat-tmdb',
+      streamingCatalogs: 'card-cat-streaming',
+      trakt: 'card-cat-trakt',
+      imdbCatalogs: 'card-cat-imdb',
+    };
+
+    const togMap = {
+      tmdbCollections: 'tog-cat-tmdb',
+      streamingCatalogs: 'tog-cat-streaming',
+      trakt: 'tog-cat-trakt',
+      imdbCatalogs: 'tog-cat-imdb',
+    };
+
+    Object.entries(map).forEach(([id, cardId]) => {
+      const tog = document.getElementById(togMap[id]);
+      const card = document.getElementById(cardId);
+      if (!tog || !card) return;
+      tog.checked = state.catalogs[id];
+      tog.disabled = state.catalogMode !== 'manual';
+      card.classList.toggle('is-on', state.catalogs[id]);
+      card.classList.toggle('is-locked', state.catalogMode !== 'manual');
+    });
+
+    const recommendedBtn = document.getElementById('catalogModeRecommended');
+    const manualBtn      = document.getElementById('catalogModeManual');
+    if (recommendedBtn) recommendedBtn.className = `btn ${state.catalogMode === 'recommended' ? 'btn-primary' : 'btn-outline'}`;
+    if (manualBtn) manualBtn.className = `btn ${state.catalogMode === 'manual' ? 'btn-primary' : 'btn-outline'}`;
+
+    const count = countSelectedCatalogs();
+    const lbl = document.getElementById('catalogCountLabel');
+    if (lbl) lbl.textContent = `${count} catalog layer${count !== 1 ? 's' : ''} selected`;
+
+    const next = document.getElementById('step5Next');
+    if (next) next.disabled = count === 0;
+  }
+
+  /* ================================================================
+     STEP 6 — UTILITIES
+     ================================================================ */
+
+  function applyUtilityDefaults() {
+    state.utilityMode = 'recommended';
+    state.utilities.openSubtitlesPro = true;
+    state.utilities.statusio = state.debridService !== 'none';
+    state.utilities.subsense = false;
+    updateUtilityUI();
+  }
+
+  function setUtilityMode(mode) {
+    state.utilityMode = mode;
+    if (mode === 'recommended') {
+      applyUtilityDefaults();
+      return;
+    }
+    updateUtilityUI();
+  }
+
+  function onUtilityToggle(id, checked) {
+    if (state.utilityMode !== 'manual') return;
+    state.utilities[id] = checked;
+    if (!countSelectedUtilities()) state.utilities.openSubtitlesPro = true;
+    updateUtilityUI();
+  }
+
+  function countSelectedUtilities() {
+    return Object.values(state.utilities).filter(Boolean).length;
+  }
+
+  function updateUtilityUI() {
+    enforceDebridCompatibility();
+
+    const map = {
+      openSubtitlesPro: 'card-ut-subs',
+      statusio: 'card-ut-statusio',
+      subsense: 'card-ut-subsense',
+    };
+
+    const togMap = {
+      openSubtitlesPro: 'tog-ut-subs',
+      statusio: 'tog-ut-statusio',
+      subsense: 'tog-ut-subsense',
+    };
+
+    Object.entries(map).forEach(([id, cardId]) => {
+      const tog = document.getElementById(togMap[id]);
+      const card = document.getElementById(cardId);
+      if (!tog || !card) return;
+      tog.checked = state.utilities[id];
+      tog.disabled = state.utilityMode !== 'manual';
+      card.classList.toggle('is-on', state.utilities[id]);
+      card.classList.toggle('is-locked', state.utilityMode !== 'manual');
+    });
+
+    const recommendedBtn = document.getElementById('utilityModeRecommended');
+    const manualBtn      = document.getElementById('utilityModeManual');
+    if (recommendedBtn) recommendedBtn.className = `btn ${state.utilityMode === 'recommended' ? 'btn-primary' : 'btn-outline'}`;
+    if (manualBtn) manualBtn.className = `btn ${state.utilityMode === 'manual' ? 'btn-primary' : 'btn-outline'}`;
+
+    const count = countSelectedUtilities();
+    const lbl = document.getElementById('utilityCountLabel');
+    if (lbl) lbl.textContent = `${count} utility layer${count !== 1 ? 's' : ''} selected`;
+
+    const next = document.getElementById('step6Next');
+    if (next) next.disabled = count === 0;
+  }
+
+  /* ================================================================
+     STEP 7 — GENERATE
+     ================================================================ */
+
+  /** Populates the configuration summary tiles before showing step 7. */
+  function populateSummary() {
+    const grid = document.getElementById('summaryGrid');
+    if (!grid) return;
+
+    const activeScrapers = ['torrentio', 'torrentsdb', 'mediafusion']
+      .filter(k => state.scrapers[k])
+      .map(k => SCRAPER_REGISTRY[k]?.label || k)
+      .join(', ');
+
+    const activeCatalogs = Object.entries(state.catalogs)
+      .filter(([, enabled]) => enabled)
+      .map(([id]) => LAYER_LABELS[id])
+      .join(', ');
+
+    const activeUtilities = Object.entries(state.utilities)
+      .filter(([, enabled]) => enabled)
+      .map(([id]) => LAYER_LABELS[id])
+      .join(', ');
+
+    const pref = state.preferences;
+    const languageSummary = `${pref.audioLanguages.join('/').toUpperCase()} audio • ${pref.subtitleLanguages.join('/').toUpperCase()} subs`;
+
+    const tiles = [
+      { label: 'Guided Profile',  value: RESULT_PROFILE.label, cls: 'c-accent'   },
+      { label: 'Debrid Service',  value: state.debridService === 'none' ? 'Free (No Debrid)' : (state.debridService ? (DEBRID_CONFIG[state.debridService]?.name || state.debridService) : 'Not selected'), cls: '' },
+      { label: 'Token',           value: state.debridService === 'none' ? 'N/A — Free (No Debrid)' : (validateApiKey(state.apiKey) ? `${DEBRID_CONFIG[state.debridService]?.name || ''} — Added` : 'Not added'), cls: '' },
+      { label: 'Scrapers',        value: activeScrapers || 'None', cls: '' },
+      { label: 'Catalog Layers',  value: activeCatalogs || 'None', cls: '' },
+      { label: 'Utilities',       value: activeUtilities || 'None', cls: '' },
+      { label: 'Stream Quality',  value: RESULT_PROFILE.summary, cls: '' },
+      { label: 'Language Profile', value: languageSummary, cls: '' },
+      { label: 'Source Priority', value: state.debridService === 'none' ? 'Live torrent peers' : `${DEBRID_CONFIG[state.debridService]?.name || 'Debrid'} Cache → Torrent`, cls: '' },
+    ];
+
+    grid.innerHTML = tiles.map(({ label, value, cls }) => `
+      <div class="summary-tile">
+        <div class="summary-tile-label">${label}</div>
+        <div class="summary-tile-value ${cls}">${escapeHtml(value)}</div>
+      </div>
+    `).join('');
+  }
+
+  function getMediaFusionLanguageList(pref) {
+    return [...new Set(
+      [...pref.audioLanguages, ...pref.subtitleLanguages]
+        .map(code => MEDIAFUSION_LANGUAGE_MAP[code])
+        .filter(Boolean)
+    )];
+  }
+
+  function buildMediaFusionConfig(pref, debrid, key) {
+    if (!debrid) {
+      throw new Error('MediaFusion on the public instance requires a debrid service.');
+    }
+
+    const provider = {
+      name: 'default',
+      service: debrid.mfService,
+      token: key,
+      enable_watchlist_catalogs: false,
+      only_show_cached_streams: false,
+      use_mediaflow: false,
+      priority: 0,
+      enabled: true,
+    };
+
+    return {
+      streaming_provider: provider,
+      streaming_providers: [provider],
+      selected_resolutions: ['4k', '2160p', '1080p', '720p', '480p'],
+      enable_catalogs: false,
+      enable_imdb_metadata: false,
+      max_streams_per_resolution: 3,
+      max_streams: 12,
+      stream_type_grouping: 'separate',
+      provider_grouping: 'separate',
+      stream_type_order: ['torrent', 'usenet', 'telegram', 'http', 'acestream', 'youtube'],
+      quality_filter: RESULT_PROFILE.mfQualityFilter.slice(),
+      language_sorting: getMediaFusionLanguageList(pref),
+      hdr_filter: ['HDR10', 'HDR10+', 'Dolby Vision', 'HLG', 'SDR'],
+      nudity_filter: ['Severe'],
+      certification_filter: ['Adults+'],
+    };
+  }
+
+  async function generateMediaFusionManifestUrl(pref, debrid, key) {
+    const mfCfg = buildMediaFusionConfig(pref, debrid, key);
+    const res = await fetch('https://mediafusion.elfhosted.com/encrypt-user-data', {
+      method: 'POST',
+      mode: 'cors',
+      cache: 'no-store',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(mfCfg),
+    });
+
+    const data = await res.json().catch(() => null);
+    if (!res.ok || data?.status !== 'success' || !data?.encrypted_str) {
+      throw new Error(data?.message || 'MediaFusion rejected the generated configuration.');
+    }
+
+    return {
+      manifestUrl: `https://mediafusion.elfhosted.com/${data.encrypted_str}/manifest.json`,
+      complianceData: mfCfg,
+    };
+  }
+
+  /**
+   * Validates generated scraper manifests against strict profile requirements.
+   * @param {Array<{name:string, manifestUrl:string}>} configs
+   * @param {{audioLanguages:string[], subtitleLanguages:string[], strictLanguageOnly:boolean, allowEnglishFallback:boolean}} pref
+   * @param {boolean} hasDebrid
+   * @returns {{ok:boolean, issues:string[]}}
+   */
+  function validateGeneratedCompliance(configs, pref, hasDebrid) {
+    const issues = [];
+    const byName = Object.fromEntries(configs.map(cfg => [cfg.name, cfg]));
+
+    if (byName.Torrentio) {
+      const url = byName.Torrentio.manifestUrl;
+      const requiredParts = [
+        'qualityfilter=scr,cam,other,unknown',
+        'debridoptions=nocatalog,nodownloadlinks',
+        `language=${encodeURIComponent(pref.audioLanguages.join(','))}`,
+        `subtitlelanguage=${encodeURIComponent(pref.subtitleLanguages.join(','))}`,
+        `strictlanguage=${pref.strictLanguageOnly ? '1' : '0'}`,
+        `englishfallback=${pref.allowEnglishFallback ? '1' : '0'}`,
+      ];
+      requiredParts.forEach(part => {
+        if (!url.includes(part)) issues.push(`Torrentio config missing: ${part}`);
+      });
+    }
+
+    if (byName.Sootio) {
+      const payload = byName.Sootio.manifestUrl.split('/')[3] || '';
+      let cfg = null;
+      try {
+        cfg = JSON.parse(decodeURIComponent(payload));
+      } catch {
+        issues.push('Sootio config payload could not be decoded.');
+      }
+      if (cfg) {
+        const resolutions = Array.isArray(cfg.Resolutions) ? cfg.Resolutions : [];
+        ['4K / 2160p', '1080p', '720p', '480p'].forEach(value => {
+          if (!resolutions.includes(value)) issues.push(`Sootio resolution filter missing: ${value}`);
+        });
+
+        const expectedLang = pref.audioLanguages
+          .map(code => SOOTIO_LANGUAGE_MAP[code])
+          .filter(Boolean)
+          .sort();
+        const actualLang = (Array.isArray(cfg.Languages) ? cfg.Languages : []).slice().sort();
+        if (JSON.stringify(actualLang) !== JSON.stringify(expectedLang)) {
+          issues.push('Sootio language filter does not match selected audio languages.');
+        }
+
+        if (cfg.ShowCatalog !== false) {
+          issues.push('Sootio personal downloads catalog is not disabled.');
+        }
+
+        if (hasDebrid) {
+          const services = Array.isArray(cfg.DebridServices) ? cfg.DebridServices : [];
+          if (!services.length) {
+            issues.push('Sootio debrid service configuration missing.');
+          }
+        }
+      }
+    }
+
+    if (byName.MediaFusion) {
+      const cfg = byName.MediaFusion.complianceData || null;
+      if (!cfg) {
+        issues.push('MediaFusion config payload missing for validation.');
+      } else {
+        const quality = Array.isArray(cfg.quality_filter) ? cfg.quality_filter : [];
+        ['BluRay/UHD', 'WEB/HD', 'DVD/TV/SAT'].forEach(key => {
+          if (!quality.includes(key)) issues.push(`MediaFusion quality_filter missing: ${key}`);
+        });
+
+        const resolutions = Array.isArray(cfg.selected_resolutions) ? cfg.selected_resolutions : [];
+        ['4k', '2160p', '1080p', '720p', '480p'].forEach(value => {
+          if (!resolutions.includes(value)) issues.push(`MediaFusion selected_resolutions missing: ${value}`);
+        });
+
+        const actualLanguages = (Array.isArray(cfg.language_sorting) ? cfg.language_sorting : []).slice().sort();
+        const expectedLanguages = getMediaFusionLanguageList(pref).slice().sort();
+        if (JSON.stringify(actualLanguages) !== JSON.stringify(expectedLanguages)) {
+          issues.push('MediaFusion combined language filter does not match the selected audio/subtitle languages.');
+        }
+
+        if (cfg.enable_catalogs !== false) {
+          issues.push('MediaFusion catalogs are not disabled.');
+        }
+
+        if (hasDebrid && !cfg.streaming_provider) {
+          issues.push('MediaFusion debrid provider configuration missing.');
+        }
+      }
+    }
+
+    return { ok: issues.length === 0, issues };
+  }
+
+  /**
+  * Builds the preconfigured scraper configuration URLs and renders
+   * the install link cards in the output section.
+   *
+   * URL construction notes:
+   *   Torrentio     — config is a URL path segment with query-style params:
+   *                torrentio.strem.fun/{config}/manifest.json
+  *   Sootio        — config is a URL-encoded JSON blob in the path
+   *   MediaFusion   — config is a server-generated encrypted secret string in the path
+   */
+  async function generateConfig() {
+    const genBtn = document.getElementById('generateBtn');
+    const key      = state.apiKey;
+    const scrapers = state.scrapers;
+    const pref     = state.preferences;
+    const audioCsv = pref.audioLanguages.join(',');
+    const subCsv   = pref.subtitleLanguages.join(',');
+    const debrid   = state.debridService !== 'none' ? (DEBRID_CONFIG[state.debridService] || null) : null;
+
+    if (genBtn) {
+      genBtn.disabled = true;
+      genBtn.innerHTML = 'Generating...';
+    }
+
+    try {
+
+      if (!hasFreshHealthData()) {
+        await verifySelectedScrapersHealth();
+      }
+
+      const selected = ['torrentio', 'torrentsdb', 'mediafusion'].filter(k => scrapers[k]);
+      const offlineSelected = selected.filter(k => state.scraperHealth[k]?.status === 'offline');
+      const activeSelected = selected.filter(k => state.scraperHealth[k]?.status !== 'offline');
+
+      if (!activeSelected.length) {
+        alert('All selected scrapers appear offline right now. Please re-check scraper health and try again.');
+        return;
+      }
+
+      if (offlineSelected.length) {
+        const names = offlineSelected.map(k => SCRAPER_REGISTRY[k].label).join(', ');
+        alert(`Skipping offline scraper(s): ${names}. Links will be generated only for currently reachable scrapers.`);
+      }
+
+      const configs = [];
+
+      /* ---- Torrentio ---- */
+      if (scrapers.torrentio && activeSelected.includes('torrentio')) {
+        const cfg = [
+          ...(debrid ? [debrid.torrentioParam(key)] : []),
+          RESULT_PROFILE.torrentioFilter,
+          `language=${encodeURIComponent(audioCsv)}`,
+          `subtitlelanguage=${encodeURIComponent(subCsv)}`,
+          `strictlanguage=${pref.strictLanguageOnly ? '1' : '0'}`,
+          `englishfallback=${pref.allowEnglishFallback ? '1' : '0'}`,
+          'debridoptions=nocatalog,nodownloadlinks',
+        ].join('|');
+
+        configs.push({
+          name        : 'Torrentio',
+          manifestUrl : `https://torrentio.strem.fun/${cfg}/manifest.json`,
+        });
+      }
+
+      /* ---- Sootio ---- */
+      if (scrapers.torrentsdb && activeSelected.includes('torrentsdb')) {
+        if (!debrid) {
+          throw new Error('Sootio requires a debrid service but none is configured.');
+        }
+
+        const sootioConfig = {
+          DebridServices: [{
+            provider: debrid.sootioProvider,
+            apiKey: key,
+            enablePersonalCloud: false,
+            enableProxy: false,
+            proxyUrl: '',
+            proxyPassword: '',
+          }],
+          Languages: pref.audioLanguages
+            .map(code => SOOTIO_LANGUAGE_MAP[code])
+            .filter(Boolean),
+          Resolutions: ['4K / 2160p', '1080p', '720p', '480p'],
+          Scrapers: ['jackett', '1337x', 'snowfl', 'magnetdl', 'ilcorsaronero', 'knaben', 'torrentgalaxy', 'torrentdownload', 'limetorrents'],
+          IndexerScrapers: ['stremthru'],
+          ScrapersConfigured: true,
+          minSize: 0,
+          maxSize: 200,
+          ShowCatalog: false,
+          ProxyApplyAll: false,
+          DebridProvider: debrid.sootioProvider,
+          DebridApiKey: key,
+        };
+
+        const encodedConfig = encodeURIComponent(JSON.stringify(sootioConfig));
+
+        configs.push({
+          name        : 'Sootio',
+          manifestUrl : `https://sootiofortheweebs.midnightignite.me/${encodedConfig}/manifest.json`,
+        });
+      }
+
+      /* ---- MediaFusion ---- */
+      if (scrapers.mediafusion && activeSelected.includes('mediafusion')) {
+        const mediaFusion = await generateMediaFusionManifestUrl(pref, debrid, key);
+        configs.push({
+          name        : 'MediaFusion',
+          manifestUrl : mediaFusion.manifestUrl,
+          complianceData: mediaFusion.complianceData,
+        });
+      }
+
+      const compliance = validateGeneratedCompliance(configs, pref, Boolean(debrid));
+      if (!compliance.ok) {
+        alert(`Compliance check failed:\n\n${compliance.issues.map(item => `- ${item}`).join('\n')}`);
+        return;
+      }
+
+      renderInstallLinks(configs);
+
+      if (genBtn) {
+        genBtn.innerHTML = 'Links Generated';
+        genBtn.disabled  = true;
+      }
+    } catch (error) {
+      alert(error instanceof Error ? error.message : 'Failed to generate addon links.');
+      if (genBtn) {
+        genBtn.innerHTML = 'Generate Install Links';
+        genBtn.disabled  = false;
+      }
+    }
+  }
+
+  /**
+   * Renders the sectioned install checklist (Scrapers / Catalogs / Utilities).
+   * @param {Array<{name:string, manifestUrl:string}>} configs
+   */
+  function renderInstallLinks(configs) {
+    const sectionsEl = document.getElementById('installSections');
+    const output     = document.getElementById('linksOutput');
+
+    state.generatedInstallLinks = configs.map(cfg => `stremio://${cfg.manifestUrl.replace('https://', '')}`);
+    state.installedItems.clear();
+
+    // — Scrapers —
+    const scraperCards = configs.map((cfg, i) => {
+      const stremioUrl = `stremio://${cfg.manifestUrl.replace('https://', '')}`;
+      const safeUrl    = escapeHtml(cfg.manifestUrl);
+      const safeStrem  = escapeHtml(stremioUrl);
+      const safeName   = escapeHtml(cfg.name);
+      const itemId     = `scraper-${i}`;
+      return `
+        <div class="link-card" id="icard-${itemId}">
+          <div class="link-card-head">
+            <div class="link-card-name">
+              <div class="install-dot" id="idot-${itemId}"></div>
+              ${safeName}
+            </div>
+            <span class="badge badge-green" id="ibadge-${itemId}" style="display:none">&#10003; Installed</span>
+          </div>
+          <div class="link-url" id="linkUrl-${itemId}">${safeUrl}</div>
+          <div class="link-actions">
+            <a class="btn btn-sm btn-success" href="${safeStrem}" onclick="markInstalled('${itemId}')">Open in Stremio</a>
+            <button class="btn btn-sm btn-outline" onclick="copyToClipboard('linkUrl-${itemId}', this, 'copyOk-${itemId}')">Copy URL</button>
+            <span class="copy-ok" id="copyOk-${itemId}">Copied!</span>
+          </div>
+        </div>`;
+    }).join('');
+
+    // — Catalogs —
+    const selectedCatalogs = Object.entries(state.catalogs)
+      .filter(([, on]) => on)
+      .map(([id]) => id);
+
+    const catalogCards = selectedCatalogs.map(id => {
+      const name       = LAYER_LABELS[id] || id;
+      const installUrl = LAYER_INSTALL_LINKS[id] || `https://stremio-addons.net/addons?search=${encodeURIComponent(name)}`;
+      const settings   = LAYER_SETTINGS_GUIDE[id] || '';
+      const itemId     = `catalog-${id}`;
+      if (id === 'tmdbCollections') {
+        const manifestUrl = buildTmdbCollectionsManifestUrl();
+        const stremioUrl = `stremio://${manifestUrl.replace('https://', '')}`;
+        return `
+        <div class="link-card" id="icard-${itemId}">
+          <div class="link-card-head">
+            <div class="link-card-name">
+              <div class="install-dot" id="idot-${itemId}"></div>
+              ${escapeHtml(name)}
+            </div>
+            <span class="badge badge-green" id="ibadge-${itemId}" style="display:none">&#10003; Installed</span>
+          </div>
+          <div class="link-url" id="linkUrl-${itemId}">${escapeHtml(manifestUrl)}</div>
+          <div class="link-actions">
+            <a class="btn btn-sm btn-success" href="${escapeHtml(stremioUrl)}" onclick="markInstalled('${itemId}')">Open in Stremio</a>
+            <button class="btn btn-sm btn-outline" onclick="copyToClipboard('linkUrl-${itemId}', this, 'copyOk-${itemId}')">Copy URL</button>
+            <span class="copy-ok" id="copyOk-${itemId}">Copied!</span>
+          </div>
+          ${settings ? `<div class="install-settings-note"><strong>Settings tip:</strong> ${escapeHtml(settings)}</div>` : ''}
+        </div>`;
+      }
+
+      if (id === 'streamingCatalogs') {
+        const manifestUrl = buildStreamingCatalogsManifestUrl();
+        const stremioUrl = `stremio://${manifestUrl.replace('https://', '')}`;
+        return `
+        <div class="link-card" id="icard-${itemId}">
+          <div class="link-card-head">
+            <div class="link-card-name">
+              <div class="install-dot" id="idot-${itemId}"></div>
+              ${escapeHtml(name)}
+            </div>
+            <span class="badge badge-green" id="ibadge-${itemId}" style="display:none">&#10003; Installed</span>
+          </div>
+          <div class="link-url" id="linkUrl-${itemId}">${escapeHtml(manifestUrl)}</div>
+          <div class="link-actions">
+            <a class="btn btn-sm btn-success" href="${escapeHtml(stremioUrl)}" onclick="markInstalled('${itemId}')">Open in Stremio</a>
+            <button class="btn btn-sm btn-outline" onclick="copyToClipboard('linkUrl-${itemId}', this, 'copyOk-${itemId}')">Copy URL</button>
+            <span class="copy-ok" id="copyOk-${itemId}">Copied!</span>
+          </div>
+          ${settings ? `<div class="install-settings-note"><strong>Settings tip:</strong> ${escapeHtml(settings)}</div>` : ''}
+        </div>`;
+      }
+
+      if (id === 'imdbCatalogs') {
+        const manifestUrl = buildImdbCatalogsManifestUrl();
+        const stremioUrl = `stremio://${manifestUrl.replace('https://', '')}`;
+        return `
+        <div class="link-card" id="icard-${itemId}">
+          <div class="link-card-head">
+            <div class="link-card-name">
+              <div class="install-dot" id="idot-${itemId}"></div>
+              ${escapeHtml(name)}
+            </div>
+            <span class="badge badge-green" id="ibadge-${itemId}" style="display:none">&#10003; Installed</span>
+          </div>
+          <div class="link-url" id="linkUrl-${itemId}">${escapeHtml(manifestUrl)}</div>
+          <div class="link-actions">
+            <a class="btn btn-sm btn-success" href="${escapeHtml(stremioUrl)}" onclick="markInstalled('${itemId}')">Open in Stremio</a>
+            <button class="btn btn-sm btn-outline" onclick="copyToClipboard('linkUrl-${itemId}', this, 'copyOk-${itemId}')">Copy URL</button>
+            <span class="copy-ok" id="copyOk-${itemId}">Copied!</span>
+          </div>
+          ${settings ? `<div class="install-settings-note"><strong>Settings tip:</strong> ${escapeHtml(settings)}</div>` : ''}
+        </div>`;
+      }
+
+      return `
+        <div class="link-card" id="icard-${itemId}">
+          <div class="link-card-head">
+            <div class="link-card-name">
+              <div class="install-dot" id="idot-${itemId}"></div>
+              ${escapeHtml(name)}
+            </div>
+            <span class="badge badge-green" id="ibadge-${itemId}" style="display:none">&#10003; Installed</span>
+          </div>
+          <div class="link-actions" style="padding-top:12px;">
+            <a class="btn btn-sm btn-success" href="${escapeHtml(installUrl)}" target="_blank" rel="noopener noreferrer" onclick="markInstalled('${itemId}')">Open install page</a>
+          </div>
+          ${settings ? `<div class="install-settings-note"><strong>Settings tip:</strong> ${escapeHtml(settings)}</div>` : ''}
+        </div>`;
+    }).join('');
+
+    // — Utilities —
+    const selectedUtilities = Object.entries(state.utilities)
+      .filter(([, on]) => on)
+      .map(([id]) => id);
+
+    const utilityCards = selectedUtilities.map(id => {
+      const name       = LAYER_LABELS[id] || id;
+      const installUrl = LAYER_INSTALL_LINKS[id] || `https://stremio-addons.net/addons?search=${encodeURIComponent(name)}`;
+      const settings   = LAYER_SETTINGS_GUIDE[id] || '';
+      const itemId     = `utility-${id}`;
+
+      if (id === 'openSubtitlesPro') {
+        const manifestUrl = buildOpenSubtitlesProManifestUrl();
+        if (manifestUrl) {
+          const stremioUrl = `stremio://${manifestUrl.replace('https://', '')}`;
+          return `
+        <div class="link-card" id="icard-${itemId}">
+          <div class="link-card-head">
+            <div class="link-card-name">
+              <div class="install-dot" id="idot-${itemId}"></div>
+              ${escapeHtml(name)}
+            </div>
+            <span class="badge badge-green" id="ibadge-${itemId}" style="display:none">&#10003; Installed</span>
+          </div>
+          <div class="link-url" id="linkUrl-${itemId}">${escapeHtml(manifestUrl)}</div>
+          <div class="link-actions">
+            <a class="btn btn-sm btn-success" href="${escapeHtml(stremioUrl)}" onclick="markInstalled('${itemId}')">Open in Stremio</a>
+            <button class="btn btn-sm btn-outline" onclick="copyToClipboard('linkUrl-${itemId}', this, 'copyOk-${itemId}')">Copy URL</button>
+            <span class="copy-ok" id="copyOk-${itemId}">Copied!</span>
+          </div>
+          ${settings ? `<div class="install-settings-note"><strong>Settings tip:</strong> ${escapeHtml(settings)}</div>` : ''}
+        </div>`;
+        }
+      }
+
+      if (id === 'subsense') {
+        const manifestUrl = buildSubSenseManifestUrl();
+        const stremioUrl = `stremio://${manifestUrl.replace('https://', '')}`;
+        return `
+        <div class="link-card" id="icard-${itemId}">
+          <div class="link-card-head">
+            <div class="link-card-name">
+              <div class="install-dot" id="idot-${itemId}"></div>
+              ${escapeHtml(name)}
+            </div>
+            <span class="badge badge-green" id="ibadge-${itemId}" style="display:none">&#10003; Installed</span>
+          </div>
+          <div class="link-url" id="linkUrl-${itemId}">${escapeHtml(manifestUrl)}</div>
+          <div class="link-actions">
+            <a class="btn btn-sm btn-success" href="${escapeHtml(stremioUrl)}" onclick="markInstalled('${itemId}')">Open in Stremio</a>
+            <button class="btn btn-sm btn-outline" onclick="copyToClipboard('linkUrl-${itemId}', this, 'copyOk-${itemId}')">Copy URL</button>
+            <span class="copy-ok" id="copyOk-${itemId}">Copied!</span>
+          </div>
+          ${settings ? `<div class="install-settings-note"><strong>Settings tip:</strong> ${escapeHtml(settings)}</div>` : ''}
+        </div>`;
+      }
+
+      if (id === 'statusio') {
+        const manifestUrl = buildStatusioManifestUrl();
+        const stremioUrl = `stremio://${manifestUrl.replace('https://', '')}`;
+        return `
+        <div class="link-card" id="icard-${itemId}">
+          <div class="link-card-head">
+            <div class="link-card-name">
+              <div class="install-dot" id="idot-${itemId}"></div>
+              ${escapeHtml(name)}
+            </div>
+            <span class="badge badge-green" id="ibadge-${itemId}" style="display:none">&#10003; Installed</span>
+          </div>
+          <div class="link-url" id="linkUrl-${itemId}">${escapeHtml(manifestUrl)}</div>
+          <div class="link-actions">
+            <a class="btn btn-sm btn-success" href="${escapeHtml(stremioUrl)}" onclick="markInstalled('${itemId}')">Open in Stremio</a>
+            <button class="btn btn-sm btn-outline" onclick="copyToClipboard('linkUrl-${itemId}', this, 'copyOk-${itemId}')">Copy URL</button>
+            <span class="copy-ok" id="copyOk-${itemId}">Copied!</span>
+          </div>
+          ${settings ? `<div class="install-settings-note"><strong>Settings tip:</strong> ${escapeHtml(settings)}</div>` : ''}
+        </div>`;
+      }
+
+      return `
+        <div class="link-card" id="icard-${itemId}">
+          <div class="link-card-head">
+            <div class="link-card-name">
+              <div class="install-dot" id="idot-${itemId}"></div>
+              ${escapeHtml(name)}
+            </div>
+            <span class="badge badge-green" id="ibadge-${itemId}" style="display:none">&#10003; Installed</span>
+          </div>
+          <div class="link-actions" style="padding-top:12px;">
+            <a class="btn btn-sm btn-success" href="${escapeHtml(installUrl)}" target="_blank" rel="noopener noreferrer" onclick="markInstalled('${itemId}')">Open install page</a>
+          </div>
+          ${settings ? `<div class="install-settings-note"><strong>Settings tip:</strong> ${escapeHtml(settings)}</div>` : ''}
+        </div>`;
+    }).join('');
+
+    const totalItems = configs.length + selectedCatalogs.length + selectedUtilities.length;
+
+    sectionsEl.innerHTML = `
+      <div class="install-section">
+        <div class="install-section-heading">
+          <span>Scrapers</span>
+          <span class="badge badge-purple">${configs.length} to install</span>
+        </div>
+        <div class="addon-list">${scraperCards}</div>
+      </div>
+      ${selectedCatalogs.length ? `
+      <div class="install-section">
+        <div class="install-section-heading">
+          <span>Catalogs</span>
+          <span class="badge badge-muted">${selectedCatalogs.length} to install</span>
+        </div>
+        <div class="addon-list">${catalogCards}</div>
+      </div>` : ''}
+      ${selectedUtilities.length ? `
+      <div class="install-section">
+        <div class="install-section-heading">
+          <span>Utilities</span>
+          <span class="badge badge-muted">${selectedUtilities.length} to install</span>
+        </div>
+        <div class="addon-list">${utilityCards}</div>
+      </div>` : ''}
+    `;
+
+    const torrentNote  = document.getElementById('torrentOnlyNote');
+    const securityNote = document.getElementById('debridSecurityNote');
+    if (torrentNote)  torrentNote.style.display  = state.debridService === 'none' ? 'block' : 'none';
+    if (securityNote) securityNote.style.display = state.debridService === 'none' ? 'none'  : '';
+
+    updateInstallProgress(totalItems);
+
+    output.style.display = 'block';
+    output.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  function markInstalled(itemId) {
+    state.installedItems.add(itemId);
+    const card  = document.getElementById(`icard-${itemId}`);
+    const dot   = document.getElementById(`idot-${itemId}`);
+    const badge = document.getElementById(`ibadge-${itemId}`);
+    if (card)  card.classList.add('is-installed');
+    if (dot)   dot.classList.add('installed');
+    if (badge) badge.style.display = '';
+    const t = document.querySelectorAll('[id^="icard-"]').length;
+    updateInstallProgress(t);
+  }
+
+  function updateInstallProgress(total) {
+    const done = state.installedItems.size;
+    const t    = total ?? document.querySelectorAll('[id^="icard-"]').length;
+    const lbl  = document.getElementById('installProgressLabel');
+    if (!lbl) return;
+    lbl.textContent = done === 0
+      ? `${t} to install`
+      : done < t
+        ? `${done} / ${t} installed`
+        : `All ${t} installed \u2713`;
+  }
+
+  /* ================================================================
+     UTILS
+     ================================================================ */
+
+  /**
+   * Copies the text content of a DOM element to the clipboard.
+   * Falls back to execCommand for browsers without Clipboard API.
+   * @param {string} srcId    - Element ID containing the text
+   * @param {HTMLElement} btn - The button that triggered the copy
+   * @param {string} okId     - ID of the "Copied!" feedback element
+   */
+  async function copyToClipboard(srcId, btn, okId) {
+    const el   = document.getElementById(srcId);
+    const text = el ? el.textContent.trim() : '';
+    if (!text) return;
+
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      // Legacy fallback
+      const range = document.createRange();
+      range.selectNode(el);
+      window.getSelection()?.removeAllRanges();
+      window.getSelection()?.addRange(range);
+      document.execCommand('copy');
+      window.getSelection()?.removeAllRanges();
+    }
+
+    // Visual feedback on button and inline label
+    btn.textContent = 'Copied';
+    const okEl = document.getElementById(okId);
+    if (okEl) {
+      okEl.classList.add('show');
+      setTimeout(() => okEl.classList.remove('show'), 2200);
+    }
+    setTimeout(() => { btn.innerHTML = 'Copy URL'; }, 2200);
+  }
+
+  /**
+   * Resets the entire wizard back to step 1 with a clean slate.
+   * Asks for confirmation before proceeding.
+   */
+  function resetSetup() {
+    if (!confirm('Reset all setup choices and start over?')) return;
+
+    // Reset state properties individually to avoid losing object reference
+    state.currentStep  = 1;
+    state.debridService = null;
+    state.apiKey       = '';
+    state.generatedInstallLinks = [];
+    state.installedItems.clear();
+    state.preferences.audioLanguages = ['en'];
+    state.preferences.subtitleLanguages = ['en'];
+    state.preferences.strictLanguageOnly = true;
+    state.preferences.allowEnglishFallback = false;
+    state.scrapers.torrentio     = true;
+    state.scrapers.torrentsdb = false;
+    state.scrapers.mediafusion   = false;
+    state.scraperMode = 'recommended';
+    state.scraperPreset = 'speed';
+    state.catalogMode = 'recommended';
+    state.catalogs.tmdbCollections = true;
+    state.catalogs.streamingCatalogs = true;
+    state.catalogs.trakt = false;
+    state.catalogs.imdbCatalogs = false;
+    state.utilityMode = 'recommended';
+    state.utilities.openSubtitlesPro = true;
+    state.utilities.statusio = state.debridService !== 'none';
+    state.utilities.subsense = false;
+
+    // Reset DOM elements
+    const apiInput  = document.getElementById('apiKeyInput');
+    apiInput.value  = '';
+    apiInput.type   = 'password';
+    apiInput.classList.remove('is-success', 'is-error');
+
+    document.getElementById('toggleKeyVisibility').textContent = '👁';
+    document.getElementById('step3Next').disabled = true;
+    const s2next = document.getElementById('step2Next');
+    s2next.disabled = true;
+    s2next.textContent = 'Next: Enter Token →';
+    document.getElementById('step1Next').disabled = false;
+    const step4Next = document.getElementById('step4Next');
+    const step5Next = document.getElementById('step5Next');
+    const step6Next = document.getElementById('step6Next');
+    if (step4Next) step4Next.disabled = false;
+    if (step5Next) step5Next.disabled = false;
+    if (step6Next) step6Next.disabled = false;
+    document.getElementById('step1Hint').textContent = 'Preferences are optional. Continue when ready.';
+    document.getElementById('step2Hint').textContent = 'Select a debrid service to continue.';
+
+    // Reset debrid service cards
+    document.querySelectorAll('[id^="debridcard-"]').forEach(c => c.classList.remove('selected'));
+    document.querySelectorAll('[id^="debridradio-"]').forEach(r => r.classList.remove('selected'));
+
+    ['es', 'pt', 'fr', 'de', 'it', 'ja', 'ko', 'hi'].forEach(code => {
+      const aud = document.getElementById(`aud-${code}`);
+      const sub = document.getElementById(`sub-${code}`);
+      if (aud) aud.checked = false;
+      if (sub) sub.checked = false;
+    });
+    document.getElementById('aud-en').checked = true;
+    document.getElementById('sub-en').checked = true;
+    document.getElementById('pref-strict-lang').checked = true;
+    document.getElementById('pref-fallback-en').checked = false;
+
+    document.querySelectorAll('[id^="preset-"]').forEach(c => c.classList.remove('selected'));
+    document.querySelectorAll('[id^="preset-radio-"]').forEach(c => c.classList.remove('selected'));
+    state.scraperHealth.torrentio = null;
+    state.scraperHealth.torrentsdb = null;
+    state.scraperHealth.mediafusion = null;
+    state.scraperHealthCheckedAt = 0;
+    applyCatalogDefaults();
+    applyUtilityDefaults();
+    updateUtilityCompatibilityUI();
+    applyScraperDefaults();
+    updateAddonUI();
+    updateCatalogUI();
+    updateUtilityUI();
+    renderPreferencesSummary();
+    goToStep(1);
+  }
+
+  /**
+   * Escapes HTML special characters in a string to prevent XSS
+   * when inserting untrusted content into innerHTML.
+   * @param {string} str
+   * @returns {string}
+   */
+  function escapeHtml(str) {
+    const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+    return String(str).replace(/[&<>"']/g, ch => map[ch]);
+  }
+
+  /* ================================================================
+     INIT
+     ================================================================ */
+
+  /** Bootstraps the wizard: renders progress bar and shows step 1. */
+  function init() {
+    applyScraperDefaults();
+    applyCatalogDefaults();
+    applyUtilityDefaults();
+    renderScraperHealth();
+    updateProgress();
+    renderPanels();
+    renderPreferencesSummary();
+
+    // Ensure the app always opens at the very top of the page.
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+  }
+
+  init();
+</script>
+</body>
+</html>
