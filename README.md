@@ -3,7 +3,7 @@
 A high-performance, single-page setup wizard for Stremio. This tool simplifies the configuration of debrid-based addons by applying "Guided Defaults"—automatically pairing the best scrapers and catalogs for a faster, higher-quality experience.
 
 ## 🚀 Live Demo
-**[Launch the Optimizer]([[https://YOUR-GITHUB-USERNAME.github.io/stremio-setup-optimizer/](https://outatime83.github.io/Stremio-Setup-Optimizer/](https://outatime83.github.io/Stremio-Setup-Optimizer/)))**
+**[Launch the Optimizer](https://outatime83.github.io/Stremio-Setup-Optimizer/)**
 *(Note: Replace YOUR-GITHUB-USERNAME with your actual username after hosting)*
 
 ## ✨ Key Features
