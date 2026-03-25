@@ -1,34 +1,75 @@
-# ⚡ Stremio Setup Optimizer
+# Stremio Setup Optimizer ✨
 
-A high-performance, single-page setup wizard for Stremio. This tool simplifies the configuration of debrid-based addons by applying "Guided Defaults"—automatically pairing the best scrapers and catalogs for a faster, higher-quality experience.
+A compact, client‑side wizard that generates preconfigured Stremio addon manifests and one‑click install links for debrid setups.
 
-## 🚀 Live Demo
-**[Launch the Optimizer](https://outatime83.github.io/Stremio-Setup-Optimizer/)**
-*(Note: Replace YOUR-GITHUB-USERNAME with your actual username after hosting)*
+[Open hosted version](https://outatime83.github.io/Stremio-Setup-Optimizer/)
+---
 
-## ✨ Key Features
-* **Global Content Preferences:** Set your preferred audio and subtitle languages once; the tool automatically carries them into every addon configuration.
-* **Guided Scraper Pairings:** Choose from optimized presets like "Speed + Stability" (Torrentio + MediaFusion) or "Coverage First" (Torrentio + Sootio).
-* **Debrid Integration:** Full native support for **Real-Debrid**, **AllDebrid**, and **Premiumize**.
-* **Free (No Debrid) Mode:** A dedicated path for users without subscriptions, utilizing public Torrentio instances.
-* **Privacy-First Design:** This is a static "client-side" application. Your API tokens are never sent to a server; they are only used locally in your browser to build your installation links.
+## Overview
 
-## 🛠 Supported Addons & Scrapers
-Based on the current version, this optimizer configures:
-* **Scrapers:** Torrentio, MediaFusion, and Sootio.
-* **Catalogs:** Streaming Catalogs and CyberFlix for better content discovery.
-* **Utilities:** Trakt integration for syncing your watch history.
+- Generates ready‑to‑install `stremio://` manifests configured from your preferences and debrid token.
+- Provides guided presets (speed, coverage) and a Free (no‑debrid) mode.
 
-## 📖 How to Use
-1.  **Set Preferences:** Select your languages and toggle "Strict Language Match" if desired.
-2.  **Connect Debrid:** Select your provider and paste your API key (links to find your key are provided in the wizard).
-3.  **Choose a Pairing:** Pick a recommended scraper preset or switch to "Manual Mode" for full control.
-4.  **Generate & Install:** The tool generates unique `stremio://` links. Click them to install each addon directly into your Stremio app.
+## Supported
 
-## 🔒 Security & Safety
-This tool is hosted via GitHub Pages and runs entirely on your local machine. 
-* **No Databases:** Your data is never stored.
-* **Open Source:** You can inspect the `index.html` file to see exactly how your API tokens are used to generate links.
+- Scrapers: Torrentio, Sootio, MediaFusion
+- Catalogs: TMDB Collections, Streaming Catalogs, Trakt, IMDb Catalogs
+- Utilities: OpenSubtitles PRO, SubSense, Statusio
+
+## Free (No‑Debrid)
+
+- Select **Free (No Debrid)** in Step 2 — no API key required.
+- Uses public Torrentio instances (peer‑sourced streams): expect slower starts and variable quality.
+
+## How it works
+
+- The wizard builds a manifest configuration, injects the selected debrid token into the correct field (when applicable), encodes the JSON into the addon URL, and exposes a `stremio://` install link.
+
+## Usage
+
+Download/open `index.html` locally and follow the on‑screen wizard to configure and generate install links.
+
+## Quick start
+
+1. Download the repo or open `index.html` in your browser.
+2. Follow the wizard: select debrid provider, paste API key (or choose Free), choose presets, generate the manifest.
+3. Click the generated `stremio://` link to install in Stremio.
+
+## Table of contents
+
+- [Overview](#overview)
+- [Supported](#supported)
+- [Free (No‑Debrid)](#free-no-debrid)
+- [How it works](#how-it-works)
+- [Usage](#usage)
+- [Security & privacy](#security--privacy)
+- [Compatibility](#compatibility)
+- [Report issues](#report-issues)
+
+## Security & privacy
+
+- Runs entirely in the browser; this repo does not send or store your API key.
+- Generated manifest URLs embed the token in the path to support preconfigured installs — if you prefer, copy/download the manifest JSON and install it manually.
+
+## Compatibility
+
+- Tested on Windows 11 (Microsoft Edge).
+- May work on other platforms, but I have only tested on the above platform/browser. If opening via `file://` causes issues, serve the folder over HTTP.
+- If a manifest fails to install, I cannot help unless you open an issue with the generated manifest URL (redact tokens), browser & OS, and reproduction steps.
+
+## Report issues / Get help
+
+If you find a bug or have a suggestion, please open an issue on the repository Issues page: https://github.com/outatime83/Stremio-Setup-Optimizer/issues
+
+When filing an issue, include:
+
+- **Steps to reproduce** (what you clicked and expected vs actual)
+- **Browser & OS** (e.g., Chrome on Windows 11)
+- **Generated manifest URL** or a copy of the manifest JSON (redact API keys/tokens — do NOT paste secrets)
+- **Screenshots** or console logs, if available
+
+For privacy: never paste your API key or full token in issues — instead redact or replace it with `<REDACTED>`.
 
 ---
-*Optimized for faster, high-quality streaming — Clean. Fast. Minimal.*
+
+Made for fast, reliable streaming.
