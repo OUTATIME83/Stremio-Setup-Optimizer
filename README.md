@@ -35,17 +35,6 @@ Download/open `index.html` locally and follow the on‑screen wizard to configur
 2. Follow the wizard: select debrid provider, paste API key (or choose Free), choose presets, generate the manifest.
 3. Click the generated `stremio://` link to install in Stremio.
 
-## Table of contents
-
-- [Overview](#overview)
-- [Supported](#supported)
-- [Free (No‑Debrid)](#free-no-debrid)
-- [How it works](#how-it-works)
-- [Usage](#usage)
-- [Security & privacy](#security--privacy)
-- [Compatibility](#compatibility)
-- [Report issues](#report-issues)
-
 ## Security & privacy
 
 - Runs entirely in the browser; this repo does not send or store your API key.
