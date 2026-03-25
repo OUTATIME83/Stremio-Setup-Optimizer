@@ -2,7 +2,7 @@
 
 A compact, client‑side wizard that generates preconfigured Stremio addon manifests and one‑click install links for debrid setups.
 
-[<a href="https://outatime83.github.io/Stremio-Setup-Optimizer/" target="_blank" rel="noopener noreferrer">Open hosted version</a>]
+[Open hosted version](https://outatime83.github.io/Stremio-Setup-Optimizer/)
 ---
 
 ## Overview
@@ -48,7 +48,7 @@ Download/open `index.html` locally and follow the on‑screen wizard to configur
 
 ## Report issues / Get help
 
-If you find a bug or have a suggestion, please open an issue on the repository Issues page: <a href="https://github.com/outatime83/Stremio-Setup-Optimizer/issues" target="_blank" rel="noopener noreferrer">https://github.com/outatime83/Stremio-Setup-Optimizer/issues</a>
+If you find a bug or have a suggestion, please open an issue on the repository Issues page: https://github.com/outatime83/Stremio-Setup-Optimizer/issues
 
 When filing an issue, include:
 
