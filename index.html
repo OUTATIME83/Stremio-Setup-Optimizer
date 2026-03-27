@@ -1438,10 +1438,7 @@
                   </div>
                   <p class="addon-desc">Fast, widely used, and reliable as a primary source.</p>
                   <div class="addon-meta">
-                    <span>Host: <b>torrentio.strem.fun</b></span>
-                    <span>Role: <b>Primary</b></span>
-                    <span>Debrid: <b>Compatible</b></span>
-                    <span id="health-torrentio">Status: <b>Not checked</b></span>
+                  <span id="health-torrentio">Status: <b>Not checked</b></span>
                   </div>
                 </div>
                 <label class="toggle">
@@ -1455,14 +1452,11 @@
                 <div class="addon-info">
                   <div class="addon-name-row">
                     <span class="addon-name">Sootio</span>
-                    <span class="badge badge-muted">Optional backup</span>
+                    <span class="badge badge-muted">Optional</span>
                   </div>
                   <p class="addon-desc">Debrid-first backup with explicit resolution filters and broad multi-scraper coverage.</p>
                   <div class="addon-meta">
-                    <span>Host: <b>sootiofortheweebs.midnightignite.me</b></span>
-                    <span>Role: <b>Debrid backup</b></span>
-                    <span>Debrid: <b>Required</b></span>
-                    <span id="health-torrentsdb">Status: <b>Not checked</b></span>
+                  <span id="health-torrentsdb">Status: <b>Not checked</b></span>
                   </div>
                 </div>
                 <label class="toggle">
@@ -1476,14 +1470,11 @@
                 <div class="addon-info">
                   <div class="addon-name-row">
                     <span class="addon-name">MediaFusion</span>
-                    <span class="badge badge-muted">Optional backup</span>
+                    <span class="badge badge-green">Recommended</span>
                   </div>
                   <p class="addon-desc">Feature-rich backup with strong provider and stream coverage.</p>
                   <div class="addon-meta">
-                    <span>Host: <b>mediafusion.elfhosted.com</b></span>
-                    <span>Role: <b>Coverage backup</b></span>
-                    <span>Debrid: <b>Required on public instance</b></span>
-                    <span id="health-mediafusion">Status: <b>Not checked</b></span>
+                  <span id="health-mediafusion">Status: <b>Not checked</b></span>
                   </div>
                 </div>
                 <label class="toggle">
@@ -2141,9 +2132,15 @@
       updateTokenStepUI();
     }
 
-    if (step === 4) {
-      updateAddonUI();
-    }
+if (step === 4) {
+  updateAddonUI();
+
+  if (!hasFreshHealthData()) {
+    verifySelectedScrapersHealth();
+  } else {
+    renderScraperHealth();
+  }
+}
 
     if (step === 5) {
       updateCatalogUI();
@@ -2175,25 +2172,36 @@
     document.getElementById('wizardCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
-  function renderScraperHealth() {
-    ['torrentio', 'torrentsdb', 'mediafusion'].forEach(id => {
-      const target = document.getElementById(`health-${id}`);
-      if (!target) return;
-      const status = state.scraperHealth[id];
-      if (!status) {
-        target.innerHTML = 'Status: <b>Not checked</b>';
-        return;
-      }
-      const txt = status.status === 'active'
-        ? 'Active'
-        : status.status === 'degraded'
-          ? 'Degraded'
-          : status.status === 'offline'
-            ? 'Offline'
-            : 'Unknown';
-      target.innerHTML = `Status: <b>${txt}</b>`;
-    });
-  }
+function renderScraperHealth() {
+  ['torrentio', 'torrentsdb', 'mediafusion'].forEach(id => {
+    // Note: Ensure your HTML uses 'health-' prefix for the status container
+    const target = document.getElementById(`health-${id}`);
+    if (!target) return;
+
+    const healthData = state.scraperHealth[id];
+
+    if (!healthData) {
+      target.innerHTML = 'Status: <b>Not checked</b>';
+      return;
+    }
+
+    // Map the status string or boolean to the correct dot and label
+    let txt;
+    const s = healthData.status;
+
+    if (s === 'online' || s === 'active' || s === true) {
+      txt = '🟢 Online';
+    } else if (s === 'degraded' || s === 'warning') {
+      txt = '🟡 Slow';
+    } else if (s === 'offline' || s === false) {
+      txt = '🔴 Down';
+    } else {
+      txt = '⚪ Unknown';
+    }
+
+    target.innerHTML = `Status: <b>${txt}</b>`;
+  });
+}
 
   async function probeScraperHealth(url, timeoutMs = 4500) {
     const controller = new AbortController();
@@ -2226,7 +2234,7 @@
   }
 
   async function verifySelectedScrapersHealth() {
-    const selected = ['torrentio', 'torrentsdb', 'mediafusion'].filter(k => state.scrapers[k]);
+    const selected = ['torrentio', 'torrentsdb', 'mediafusion'];
     if (!selected.length) return true;
 
     for (const id of selected) {
@@ -3054,7 +3062,7 @@
         await verifySelectedScrapersHealth();
       }
 
-      const selected = ['torrentio', 'torrentsdb', 'mediafusion'].filter(k => scrapers[k]);
+      const selected = ['torrentio', 'torrentsdb', 'mediafusion'];
       const offlineSelected = selected.filter(k => state.scraperHealth[k]?.status === 'offline');
       const activeSelected = selected.filter(k => state.scraperHealth[k]?.status !== 'offline');
 
